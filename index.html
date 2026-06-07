@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbeidstijden Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arbeidstijden">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117; --panel: #181c27; --border: #252a3a;
+    --accent: #f0a500; --at: #f0a500; --ak: #3b82f6;
+    --danger: #ef4444; --warn: #f97316; --ok: #22c55e;
+    --text: #e8eaf0; --muted: #6b7280; --card: #1e2333;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px 14px 48px; }
+
+  header { text-align: center; margin-bottom: 22px; }
+  header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; color: var(--accent); }
+  header p { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── Gecombineerde ATW-balk bovenaan ── */
+  .atw-bar {
+    max-width: 900px; margin: 0 auto 20px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .atw-bar-title {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .atw-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#a855f7; }
+  .atw-gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  @media(max-width:500px){ .atw-gauges { grid-template-columns: 1fr; } }
+  .atw-alert-row { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 8px; max-width: 900px; margin: 0 auto 18px; }
+  .tab {
+    flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; text-align: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.92rem;
+    color: var(--muted); transition: all 0.2s; user-select: none;
+  }
+  .tab:hover { color: var(--text); border-color: var(--muted); }
+  .tab.act-t { color: #000; background: var(--at); border-color: var(--at); }
+  .tab.act-k { color: #fff; background: var(--ak); border-color: var(--ak); }
+  .tab.act-h { color: #fff; background: #a855f7; border-color: #a855f7; }
+  .tab-sub { font-size: 0.63rem; font-family: 'DM Mono', monospace; font-weight: 400; margin-top: 2px; opacity: 0.75; text-transform: uppercase; letter-spacing: 1px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 900px; margin: 0 auto; }
+  @media(max-width:640px){ .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .card.full { grid-column: 1 / -1; }
+
+  .ct { font-size: 0.67rem; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .ct.t::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--at); }
+  .ct.k::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ak); }
+
+  label { display:block; font-size:0.68rem; font-family:'DM Mono',monospace; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px; }
+  input[type="number"], input[type="time"], select {
+    width:100%; background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'DM Mono',monospace; font-size:0.97rem;
+    padding:9px 11px; margin-bottom:12px; outline:none; transition:border-color 0.2s; -webkit-appearance:none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  .row { display:flex; gap:10px; } .row > div { flex:1; }
+
+  .btn-t { width:100%; background:var(--at); color:#000; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; margin-top:2px; }
+  .btn-k { width:100%; background:var(--ak); color:#fff; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; margin-top:2px; }
+  .btn-t:hover,.btn-k:hover { opacity:0.85; } .btn-t:active,.btn-k:active { transform:scale(0.98); }
+
+  .reset-btn { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.7rem; padding:7px; margin-top:9px; width:100%; border-radius:8px; cursor:pointer; font-family:'DM Mono',monospace; transition:color 0.2s,border-color 0.2s; }
+  .reset-btn:hover { color:var(--danger); border-color:var(--danger); }
+
+  .gw { margin-bottom:13px; }
+  .gl { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--muted); margin-bottom:5px; }
+  .gl span:last-child { color:var(--text); font-size:0.8rem; }
+  .gb { width:100%; height:9px; background:var(--panel); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
+  .gf { height:100%; border-radius:99px; transition:width 0.45s cubic-bezier(.4,0,.2,1),background 0.3s; }
+
+  .alerts { display:flex; flex-direction:column; gap:8px; }
+  .alert { border-radius:8px; padding:11px 13px; font-size:0.8rem; border:1px solid transparent; line-height:1.5; }
+  .alert.ok     { background:#052e16; border-color:#166534; color:#86efac; }
+  .alert.warn   { background:#1c1008; border-color:#92400e; color:#fdba74; }
+  .alert.danger { background:#1c0a0a; border-color:#991b1b; color:#fca5a5; }
+
+  .log-list { display:flex; flex-direction:column; gap:7px; margin-top:7px; max-height:200px; overflow-y:auto; }
+  .log-item { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:9px 11px; display:flex; justify-content:space-between; align-items:center; font-family:'DM Mono',monospace; font-size:0.76rem; }
+  .li-info { color:var(--text); } .li-sub { color:var(--muted); font-size:0.66rem; margin-top:2px; }
+  .log-item button { width:auto; background:transparent; border:1px solid var(--border); color:var(--muted); padding:3px 9px; font-size:0.66rem; margin-top:0; border-radius:6px; cursor:pointer; font-family:'DM Mono',monospace; transition:color 0.2s,border-color 0.2s; }
+  .log-item button:hover { color:var(--danger); border-color:var(--danger); }
+
+  .tg { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .tb { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .tb .val { font-size:1.45rem; font-weight:800; font-family:'DM Mono',monospace; line-height:1; margin-bottom:4px; }
+  .tb .val.t { color:var(--at); } .tb .val.k { color:var(--ak); } .tb .val.c { color:#a855f7; }
+  .tb .lbl { font-size:0.63rem; font-family:'DM Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+
+  .rg { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .rb { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .rb .rlbl { font-size:0.63rem; font-family:'DM Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+  .rb .rval { font-size:0.97rem; font-weight:700; color:var(--text); font-family:'DM Mono',monospace; }
+  .rb .rsub { font-size:0.65rem; font-family:'DM Mono',monospace; color:var(--muted); margin-top:3px; line-height:1.5; }
+
+  .badge-combo { display:inline-block; background:#a855f720; border:1px solid #a855f760; color:#d8b4fe; border-radius:5px; font-family:'DM Mono',monospace; font-size:0.63rem; padding:2px 7px; vertical-align:middle; margin-left:6px; }
+
+  /* ── Foto import sectie ── */
+  .foto-bar {
+    max-width: 900px; margin: 0 auto 20px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .foto-bar-title {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .foto-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#22d3ee; }
+  .foto-drop-area {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 22px;
+    text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted);
+    position: relative;
+  }
+  .foto-drop-area:hover, .foto-drop-area.drag-over { border-color: #22d3ee; background: #22d3ee10; color: var(--text); }
+  .foto-drop-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .foto-preview { max-height: 140px; border-radius: 8px; margin-top: 10px; display:none; }
+  .btn-scan {
+    width:100%; background:#22d3ee; color:#000; border:none; border-radius:8px;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px;
+    cursor:pointer; transition:opacity 0.2s; margin-top:10px; display:none;
+  }
+  .btn-scan:hover { opacity:0.85; }
+  .btn-scan:disabled { opacity:0.4; cursor:not-allowed; }
+  .scan-status {
+    margin-top:10px; font-family:'DM Mono',monospace; font-size:0.76rem;
+    color: var(--muted); min-height: 22px; text-align: center;
+  }
+  .scan-result-list { margin-top:12px; display:flex; flex-direction:column; gap:6px; }
+  .scan-item {
+    background: var(--panel); border:1px solid #22d3ee40; border-radius:8px;
+    padding:9px 12px; display:flex; justify-content:space-between; align-items:center;
+    font-family:'DM Mono',monospace; font-size:0.74rem;
+  }
+  .scan-item .si-info { color:var(--text); }
+  .scan-item .si-sub { color:var(--muted); font-size:0.64rem; margin-top:2px; }
+  .scan-item .si-add {
+    background:#22d3ee20; border:1px solid #22d3ee60; color:#22d3ee;
+    border-radius:6px; padding:4px 10px; cursor:pointer; font-size:0.68rem;
+    font-family:'DM Mono',monospace; transition:background 0.2s;
+    white-space:nowrap;
+  }
+  .scan-item .si-add:hover { background:#22d3ee40; }
+  .scan-item .si-add.added { background:#22c55e20; border-color:#22c55e60; color:#22c55e; cursor:default; }
+  .btn-add-all {
+    width:100%; background:transparent; border:1px solid #22d3ee60; color:#22d3ee;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; padding:9px;
+    cursor:pointer; border-radius:8px; margin-top:8px; transition:background 0.2s;
+  }
+  .btn-add-all:hover { background:#22d3ee15; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⏱ Arbeidstijden Tracker</h1>
+  <p>Rijtijdenwet · EU 561/2006 · Arbeidstijdenwet — Nederland</p>
+</header>
+
+<!-- ══ FOTO IMPORT ══ -->
+<div class="foto-bar">
+  <div class="foto-bar-title">
+    📷 &nbsp;Dienst importeren via foto
+  </div>
+  <label for="foto-input" style="display:block;background:#22d3ee20;border:2px dashed #22d3ee60;color:#22d3ee;border-radius:10px;padding:18px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;min-height:64px;text-align:center;">
+    📸 Foto kiezen
+    <input type="file" accept="image/*" id="foto-input" style="display:none" onchange="fotoGekozen(this)">
+  </label>
+  <img id="foto-preview" class="foto-preview">
+  <button class="btn-scan" id="btn-scan" onclick="scanDienst()">🔍 Dienst uitlezen</button>
+  <div class="scan-status" id="scan-status"></div>
+  <div class="scan-result-list" id="scan-results"></div>
+  <button class="btn-add-all" id="btn-add-all" style="display:none" onclick="voegAllesToe()">✅ Alles toevoegen aan logboek</button>
+</div>
+
+
+<div class="atw-bar">
+  <div class="atw-bar-title">
+    ⚖️ &nbsp;Gecombineerde ATW-check — bus + CBR samen
+    <span class="badge-combo">alle arbeid</span>
+  </div>
+  <div class="atw-gauges">
+    <div class="gw" id="c-gauge-dag"></div>
+    <div class="gw" id="c-gauge-week"></div>
+    <div class="gw" id="c-gauge-gem"></div>
+    <div class="gw" id="c-gauge-pauze"></div>
+  </div>
+  <div class="atw-alert-row alerts" id="c-alerts">
+    <div class="alert ok">Voer activiteiten in beide tabbladen in voor gecombineerde controle.</div>
+  </div>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <div class="tab act-t" id="tab-t" onclick="toonPanel('t')">🚌 Bus<div class="tab-sub">Rijtijdenwet + ATW</div></div>
+  <div class="tab"       id="tab-k" onclick="toonPanel('k')">🎓 CBR<div class="tab-sub">Rijexamens ATW</div></div>
+  <div class="tab"       id="tab-h" onclick="toonPanel('h')">📅 Historie<div class="tab-sub">Uitdraai 14 dagen</div></div>
+</div>
+
+<!-- ══════════════ BUS ══════════════ -->
+<div class="panel active" id="panel-t">
+<div class="grid">
+
+  <div class="card full" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Datum</span>
+      <input type="date" id="t-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag()">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="slaOpDag()" style="background:#f0a50020;border:1px solid #f0a50060;color:#f0a500;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">💾 Dag opslaan</button>
+      <button onclick="nieuweDag()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">+ Nieuwe dag</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct t">Activiteit toevoegen</div>
+    <div class="row">
+      <div><label>Starttijd</label><input type="time" id="t-start"/></div>
+      <div><label>Eindtijd</label><input type="time" id="t-eind"/></div>
+    </div>
+    <label>Type</label>
+    <select id="t-type">
+      <option value="rij">🚛 Rijtijd</option>
+      <option value="werk">💼 Andere werktijd</option>
+      <option value="pauze">☕ Pauze / onderbreking</option>
+      <option value="rust">🛏 Rusttijd</option>
+    </select>
+    <button class="btn-t" onclick="voegToeT()">+ Toevoegen</button>
+  </div>
+
+  <div class="card">
+    <div class="ct t">Daginstelling</div>
+    <label>Voertuigcategorie</label>
+    <select id="t-cat" onchange="herbereken()">
+      <option value="vracht">🚛 Vrachtwagen (&gt;3,5t)</option>
+      <option value="bus">🚌 Bus / touringcar</option>
+    </select>
+    <label>Rijtijd vorige dagen deze week (u)</label>
+    <input type="number" id="t-wv-rij" value="0" min="0" max="56" step="0.5" onchange="herbereken()"/>
+    <label>Werktijd vorige dagen deze week (u)</label>
+    <input type="number" id="t-wv-werk" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
+  </div>
+
+  <div class="card full">
+    <div class="ct t">Logboek transport — vandaag</div>
+    <div class="log-list" id="t-log"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div></div>
+    <button class="reset-btn" onclick="resetT()">🗑 Wissen</button>
+  </div>
+
+  <div class="card">
+    <div class="ct t">Totalen transport</div>
+    <div class="tg">
+      <div class="tb"><div class="val t" id="t-tot-rij">0:00</div><div class="lbl">Rijtijd</div></div>
+      <div class="tb"><div class="val t" id="t-tot-werk">0:00</div><div class="lbl">Werktijd totaal</div></div>
+      <div class="tb"><div class="val t" id="t-tot-pauze">0:00</div><div class="lbl">Pauze</div></div>
+      <div class="tb"><div class="val t" id="t-tot-rust">0:00</div><div class="lbl">Rusttijd</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct t">Rijtijdenwet limieten</div>
+    <div id="t-g-dagrij" class="gw"></div>
+    <div id="t-g-dagwerk" class="gw"></div>
+    <div id="t-g-weekrij" class="gw"></div>
+    <div id="t-g-weekwerk" class="gw"></div>
+  </div>
+
+  <div class="card full">
+    <div class="ct t">Meldingen transport</div>
+    <div class="alerts" id="t-alerts"><div class="alert ok">Voer activiteiten in om te controleren.</div></div>
+  </div>
+
+  <div class="card full">
+    <div class="ct t">Wettelijke normen transport</div>
+    <div class="rg">
+      <div class="rb"><div class="rlbl">Max. dagrijtijd</div><div class="rval">9 u <span style="color:var(--muted);font-size:0.72rem">(2×/week 10 u)</span></div><div class="rsub">EU Vo. 561/2006 / Rijtijdenwet</div></div>
+      <div class="rb"><div class="rlbl">Max. weekrijtijd</div><div class="rval">56 u</div><div class="rsub">Max. 90 u per twee weken</div></div>
+      <div class="rb"><div class="rlbl">Verplichte pauze</div><div class="rval">45 min na 4,5 u</div><div class="rsub">Of gesplitst 15 + 30 min</div></div>
+      <div class="rb"><div class="rlbl">Min. dagelijkse rust</div><div class="rval">11 u</div><div class="rsub">3×/week verkortbaar tot 9 u</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════ CBR ══════════════ -->
+<div class="panel" id="panel-k">
+<div class="grid">
+
+  <div class="card full" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Datum</span>
+      <input type="date" id="k-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag()">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="slaOpDag()" style="background:#3b82f620;border:1px solid #3b82f660;color:#3b82f6;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">💾 Dag opslaan</button>
+      <button onclick="nieuweDag()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">+ Nieuwe dag</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct k">Activiteit toevoegen</div>
+    <div class="row">
+      <div><label>Starttijd</label><input type="time" id="k-start"/></div>
+      <div><label>Eindtijd</label><input type="time" id="k-eind"/></div>
+    </div>
+    <label>Type</label>
+    <select id="k-type">
+      <option value="werk">🎓 Examineren / werktijd</option>
+      <option value="pauze">☕ Pauze</option>
+    </select>
+    <button class="btn-k" onclick="voegToeK()">+ Toevoegen</button>
+    <button class="btn-k" style="margin-top:8px;background:#1e3a5f;color:#93c5fd;" onclick="vulStandaarddag()">📋 Standaard dag invullen</button>
+  </div>
+
+  <div class="card">
+    <div class="ct k">Weekinstellingen CBR</div>
+    <label>CBR-werktijd vorige dagen deze week (u)</label>
+    <input type="number" id="k-wv" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
+    <label>Gem. werkweek afgelopen 15 weken (u/week)</label>
+    <input type="number" id="k-gem15" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
+    <div style="font-family:'DM Mono',monospace;font-size:0.66rem;color:var(--muted);margin-top:-6px;line-height:1.6;">ATW norm: gem. max. 48 u/week over 16 weken</div>
+    <div style="margin-top:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Standaard CBR-dag</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text);line-height:1.8;">
+        07:50 – 16:45 &nbsp;(8u55 aanwezig)<br>
+        Pauze: 30 min<br>
+        Netto werktijd: <strong style="color:var(--ak)">8u25</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct k">Logboek CBR — vandaag</div>
+    <div class="log-list" id="k-log"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div></div>
+    <button class="reset-btn" onclick="resetK()">🗑 Wissen</button>
+  </div>
+
+  <div class="card">
+    <div class="ct k">Totalen CBR</div>
+    <div class="tg">
+      <div class="tb"><div class="val k" id="k-tot-werk">0:00</div><div class="lbl">Werktijd</div></div>
+      <div class="tb"><div class="val k" id="k-tot-pauze">0:00</div><div class="lbl">Pauze</div></div>
+      <div class="tb"><div class="val k" id="k-tot-netto">0:00</div><div class="lbl">Netto werktijd</div></div>
+      <div class="tb"><div class="val k" id="k-tot-week">0:00</div><div class="lbl">Week t/m vandaag</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct k">ATW limieten CBR</div>
+    <div id="k-g-dag" class="gw"></div>
+    <div id="k-g-week" class="gw"></div>
+    <div id="k-g-gem" class="gw"></div>
+  </div>
+
+  <div class="card full">
+    <div class="ct k">Meldingen CBR</div>
+    <div class="alerts" id="k-alerts"><div class="alert ok">Voer activiteiten in om te controleren.</div></div>
+  </div>
+
+  <div class="card full">
+    <div class="ct k">Wettelijke normen CBR / ATW</div>
+    <div class="rg">
+      <div class="rb"><div class="rlbl">Max. dagwerktijd</div><div class="rval">12 u</div><div class="rsub">ATW art. 5:7</div></div>
+      <div class="rb"><div class="rlbl">Max. weekwerktijd</div><div class="rval">60 u</div><div class="rsub">Absolute bovengrens</div></div>
+      <div class="rb"><div class="rlbl">Gemiddelde norm</div><div class="rval">48 u/week</div><div class="rsub">Over 16 aaneengesloten weken</div></div>
+      <div class="rb"><div class="rlbl">Pauze bij &gt;5,5 u</div><div class="rval">30 min</div><div class="rsub">Standaard CBR: 30 min pauze</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════ HISTORIE ══════════════ -->
+<div class="panel" id="panel-h">
+<div class="grid">
+  <div class="card full">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div class="ct" style="margin-bottom:0;color:#a855f7;">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#a855f7;margin-right:8px;"></span>
+        Overzicht opgeslagen dagen
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select id="hist-periode" onchange="renderHistorie()" style="width:auto;margin-bottom:0;font-size:0.8rem;padding:6px 10px;">
+          <option value="14">Laatste 14 dagen</option>
+          <option value="7">Laatste 7 dagen</option>
+          <option value="30">Laatste 30 dagen</option>
+          <option value="all">Alle dagen</option>
+        </select>
+        <button onclick="printHistorie()" style="background:#a855f720;border:1px solid #a855f760;color:#d8b4fe;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">🖨️ Afdrukken</button>
+        <button onclick="exportCSV()" style="background:#22c55e20;border:1px solid #22c55e60;color:#86efac;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">📊 CSV export</button>
+      </div>
+    </div>
+    <div id="hist-lijst" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:24px 0;">Nog geen dagen opgeslagen. Vul een dag in en klik op "Dag opslaan".</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── Hulp ────────────────────────────────────────────────────
+const m2s = m => { const h=Math.floor(Math.abs(m)/60),mm=Math.abs(m)%60; return `${h}:${String(mm).padStart(2,'0')}`; };
+const s2m = s => { const[h,m]=s.split(':').map(Number); return h*60+m; };
+const nuT  = () => { const n=new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
+const dagNamen = ['zo','ma','di','wo','do','vr','za'];
+function datumLabel(iso){ const d=new Date(iso+'T00:00:00'); return `${dagNamen[d.getDay()]} ${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}`; }
+const vandaagISO = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; };
+
+function gauge(id, label, val, max){
+  const pct=Math.min((val/max)*100,100);
+  const k=pct>=100?'var(--danger)':pct>=85?'var(--warn)':'var(--ok)';
+  document.getElementById(id).innerHTML=`
+    <div class="gl"><span>${label}</span><span>${m2s(val)} / ${m2s(max)}</span></div>
+    <div class="gb"><div class="gf" style="width:${pct}%;background:${k}"></div></div>`;
+}
+
+function toonM(id, lijst, heeftItems){
+  if(!heeftItems) lijst=[{t:'ok',m:'Voer activiteiten in om te controleren.'}];
+  else if(!lijst.length) lijst=[{t:'ok',m:'✓ Alles binnen de wettelijke limieten.'}];
+  document.getElementById(id).innerHTML=lijst.map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('');
+}
+
+// ── Tab ────────────────────────────────────────────────────
+function toonPanel(p){
+  ['t','k','h'].forEach(id=>{
+    document.getElementById('panel-'+id).classList.toggle('active',p===id);
+    const cls = p===id ? (id==='t'?' act-t':id==='k'?' act-k':' act-h') : '';
+    document.getElementById('tab-'+id).className='tab'+cls;
+  });
+  if(p==='h') renderHistorie();
+}
+
+// ══ LOCALSTORAGE ════════════════════════════════════════════
+function laadOpgeslagen(){
+  try { return JSON.parse(localStorage.getItem('atw_dagen')||'{}'); } catch(e){ return {}; }
+}
+function slaAllesOp(dagen){ localStorage.setItem('atw_dagen', JSON.stringify(dagen)); }
+
+// ══ DAG BEHEER ══════════════════════════════════════════════
+let tLog=[], kLog=[];
+const tLbl={rij:'🚌 Rijtijd',werk:'💼 Werktijd',pauze:'☕ Pauze',rust:'🛏 Rusttijd'};
+const kLbl={werk:'🎓 Werktijd CBR',pauze:'☕ Pauze'};
+
+function huidigeDatum(){
+  // Beide datumvelden synchroon houden
+  const vt = document.getElementById('t-datum').value;
+  return vt || vandaagISO();
+}
+
+function syncDatum(iso){
+  document.getElementById('t-datum').value = iso;
+  document.getElementById('k-datum').value = iso;
+}
+
+function slaOpDag(){
+  const datum = huidigeDatum();
+  const dagen = laadOpgeslagen();
+  // bereken totalen
+  let tRij=0,tWerk=0,tPauze=0;
+  tLog.forEach(r=>{ if(r.type==='rij') tRij+=r.duur; if(r.type==='werk') tWerk+=r.duur; if(r.type==='pauze') tPauze+=r.duur; });
+  let kWerk=0,kPauze=0;
+  kLog.forEach(r=>{ if(r.type==='werk') kWerk+=r.duur; if(r.type==='pauze') kPauze+=r.duur; });
+  dagen[datum] = { datum, tLog, kLog, tRij, tWerk: tRij+tWerk, tPauze, kWerk, kPauze };
+  slaAllesOp(dagen);
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓ Opgeslagen!';
+  setTimeout(()=>{ btn.textContent = orig; }, 1800);
+}
+
+function laadDag(){
+  const datum = document.getElementById('t-datum').value || document.getElementById('k-datum').value;
+  syncDatum(datum);
+  const dagen = laadOpgeslagen();
+  if(dagen[datum]){
+    tLog = dagen[datum].tLog || [];
+    kLog = dagen[datum].kLog || [];
+  } else {
+    tLog = []; kLog = [];
+  }
+  renderT(); renderK(); herbereken();
+}
+
+function nieuweDag(){
+  syncDatum(vandaagISO());
+  tLog=[]; kLog=[];
+  renderT(); renderK(); herbereken();
+}
+
+
+function voegToe(logArr, startId, eindId, typeId, renderFn){
+  const s=document.getElementById(startId).value, e=document.getElementById(eindId).value;
+  const tp=document.getElementById(typeId).value;
+  if(!s||!e){alert('Vul start- en eindtijd in.');return;}
+  let sm=s2m(s), em=s2m(e);
+  if(em<=sm) em+=1440;
+  const d=em-sm;
+  if(d<=0){alert('Eindtijd moet na starttijd liggen.');return;}
+  logArr.push({s,e,type:tp,duur:d,id:Date.now()});
+  renderFn(); herbereken();
+}
+
+function voegToeT(){ voegToe(tLog,'t-start','t-eind','t-type',renderT); }
+function voegToeK(){ voegToe(kLog,'k-start','k-eind','k-type',renderK); }
+
+function renderLog(logArr, elId, lblMap, delFn){
+  const el=document.getElementById(elId);
+  if(!logArr.length){el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div>';return;}
+  el.innerHTML=logArr.map(r=>`
+    <div class="log-item">
+      <div><div class="li-info">${lblMap[r.type]} — ${m2s(r.duur)}</div><div class="li-sub">${r.s} → ${r.e}</div></div>
+      <button onclick="${delFn}(${r.id})">✕</button>
+    </div>`).join('');
+}
+function renderT(){ renderLog(tLog,'t-log',tLbl,'delT'); }
+function renderK(){ renderLog(kLog,'k-log',kLbl,'delK'); }
+function delT(id){ tLog=tLog.filter(r=>r.id!==id); renderT(); herbereken(); }
+function delK(id){ kLog=kLog.filter(r=>r.id!==id); renderK(); herbereken(); }
+function resetT(){ if(!confirm('Transport-logboek wissen?'))return; tLog=[]; renderT(); herbereken(); }
+function resetK(){ if(!confirm('CBR-logboek wissen?'))return; kLog=[]; renderK(); herbereken(); }
+
+function vulStandaarddag(){
+  if(kLog.length>0 && !confirm('CBR-logboek heeft al items. Overschrijven?')) return;
+  kLog = [];
+  // 07:50 – pauzetijd: werktijd blok 1
+  // Standaard: 07:50-12:30 werk, 12:30-13:00 pauze, 13:00-16:45 werk
+  // (pauzetijd niet vastgelegd, we splitsen het midden van de dag)
+  const blokken = [
+    { s:'07:50', e:'12:35', type:'werk' },
+    { s:'12:35', e:'13:05', type:'pauze' },
+    { s:'13:05', e:'16:45', type:'werk' },
+  ];
+  blokken.forEach((b,i) => {
+    const sm=s2m(b.s), em=s2m(b.e);
+    kLog.push({ s:b.s, e:b.e, type:b.type, duur:em-sm, id:Date.now()+i });
+  });
+  renderK(); herbereken();
+}
+
+// ══ HOOFD BEREKENING ════════════════════════════════════════
+function herbereken(){
+  // ── Transporttotalen ──
+  let tRij=0,tWerk=0,tPauze=0,tRust=0;
+  tLog.forEach(r=>{
+    if(r.type==='rij')   tRij+=r.duur;
+    if(r.type==='werk')  tWerk+=r.duur;
+    if(r.type==='pauze') tPauze+=r.duur;
+    if(r.type==='rust')  tRust+=r.duur;
+  });
+  const tTotWerk = tRij+tWerk; // rijtijd = werktijd onder ATW
+
+  const tWvRij  = parseFloat(document.getElementById('t-wv-rij').value||0)*60;
+  const tWvWerk = parseFloat(document.getElementById('t-wv-werk').value||0)*60;
+  const tWeekRij  = tWvRij+tRij;
+  const tWeekWerk = tWvWerk+tTotWerk;
+
+  // ── Kantoortotalen ──
+  let kWerk=0,kPauze=0;
+  kLog.forEach(r=>{
+    if(r.type==='werk')  kWerk+=r.duur;
+    if(r.type==='pauze') kPauze+=r.duur;
+  });
+  const kWv    = parseFloat(document.getElementById('k-wv').value||0)*60;
+  const kGem15 = parseFloat(document.getElementById('k-gem15').value||0)*60;
+  const kWeekWerk = kWv+kWerk;
+  const kGem16    = (kGem15*15+kWerk)/16;
+
+  // ── Gecombineerd (ATW) ──
+  const cDagWerk  = tTotWerk + kWerk;          // alle arbeid vandaag
+  const cWeekWerk = tWeekWerk + kWeekWerk;     // alle arbeid deze week
+  const cPauze    = tPauze + kPauze;           // alle pauzes vandaag
+  // gecombineerd 16-weken gemiddelde (gebruik kantoor gem als proxy voor totaal)
+  const cGem16    = (kGem15*15 + cDagWerk) / 16;
+
+  // ──────────────────────────────────────────────────────────
+  // TRANSPORT UI
+  // ──────────────────────────────────────────────────────────
+  document.getElementById('t-tot-rij').textContent   = m2s(tRij);
+  document.getElementById('t-tot-werk').textContent  = m2s(tTotWerk);
+  document.getElementById('t-tot-pauze').textContent = m2s(tPauze);
+  document.getElementById('t-tot-rust').textContent  = m2s(tRust);
+
+  gauge('t-g-dagrij',  'Dagrijtijd',                tRij,     9*60);
+  gauge('t-g-dagwerk', 'Dagwerktijd transport',      tTotWerk, 13*60);
+  gauge('t-g-weekrij', 'Weekrijtijd (incl. vorig)',  tWeekRij, 56*60);
+  gauge('t-g-weekwerk','Weekwerktijd (incl. vorig)', tWeekWerk,60*60);
+
+  const tM=[];
+  if(tRij>9*60)            tM.push({t:'danger',m:`⛔ Dagrijtijdlimiet overschreden! (${m2s(tRij)} > 9:00)`});
+  else if(tRij>9*60*.85)   tM.push({t:'warn',  m:`⚠️ Dagrijtijdlimiet nadert — nog ${m2s(9*60-tRij)} over.`});
+  if(tRij>9*60&&tRij<=10*60) tM.push({t:'warn',m:`⚠️ 10-uurs uitzondering actief (max. 2× per week).`});
+
+  if(tRij>=4.5*60&&tPauze<45)       tM.push({t:'danger',m:`⛔ Verplichte pauze (45 min) niet genomen na 4,5 u rijtijd! (nu: ${tPauze} min)`});
+  else if(tRij>=4.5*60*.8&&tPauze<45) tM.push({t:'warn', m:`⚠️ Bijna 4,5 u rijtijd — zorg voor 45 min pauze.`});
+
+  if(tTotWerk>13*60)          tM.push({t:'danger',m:`⛔ Dagwerktijdlimiet transport overschreden! (${m2s(tTotWerk)} > 13:00)`});
+  else if(tTotWerk>13*60*.85)  tM.push({t:'warn',  m:`⚠️ Dagwerktijdlimiet transport nadert — nog ${m2s(13*60-tTotWerk)} over.`});
+  if(tWeekRij>56*60)           tM.push({t:'danger',m:`⛔ Weekrijtijdlimiet overschreden! (${m2s(tWeekRij)} > 56:00)`});
+  else if(tWeekRij>56*60*.85)   tM.push({t:'warn',  m:`⚠️ Weekrijtijdlimiet nadert — nog ${m2s(56*60-tWeekRij)} over.`});
+  if(tRust>0&&tRust<9*60) tM.push({t:'warn',m:`⚠️ Rusttijd is ${m2s(tRust)} — minimum is 9 u (verkort) of 11 u normaal.`});
+
+  toonM('t-alerts', tM, tLog.length>0);
+
+  // ──────────────────────────────────────────────────────────
+  // KANTOOR UI
+  // ──────────────────────────────────────────────────────────
+  document.getElementById('k-tot-werk').textContent  = m2s(kWerk);
+  document.getElementById('k-tot-pauze').textContent = m2s(kPauze);
+  document.getElementById('k-tot-netto').textContent = m2s(kWerk);
+  document.getElementById('k-tot-week').textContent  = m2s(kWeekWerk);
+
+  gauge('k-g-dag',  'Dagwerktijd CBR',             kWerk,    12*60);
+  gauge('k-g-week', 'Weekwerktijd CBR (incl.vorig)',kWeekWerk,60*60);
+  gauge('k-g-gem',  'Gem. 16-weken CBR',           kGem16,   48*60);
+
+  const kM=[];
+  if(kWerk>12*60)           kM.push({t:'danger',m:`⛔ Dagwerktijdlimiet CBR overschreden! (${m2s(kWerk)} > 12:00)`});
+  else if(kWerk>12*60*.85)   kM.push({t:'warn',  m:`⚠️ Dagwerktijdlimiet CBR nadert — nog ${m2s(12*60-kWerk)} over.`});
+  if(kWerk>5.5*60&&kPauze<30) kM.push({t:'danger',m:`⛔ Bij meer dan 5,5 u werk is 30 min pauze verplicht! (nu: ${kPauze} min)`});
+  else if(kWerk>5*60&&kPauze<30) kM.push({t:'warn',m:`⚠️ Bijna 5,5 u werk — zorg straks voor 30 min pauze.`});
+  if(kWerk>10*60&&kPauze<45) kM.push({t:'warn',m:`⚠️ Bij meer dan 10 u werk is 45 min totale pauze vereist.`});
+  if(kWeekWerk>60*60)          kM.push({t:'danger',m:`⛔ Weekwerktijdlimiet CBR overschreden! (${m2s(kWeekWerk)} > 60:00)`});
+  else if(kWeekWerk>60*60*.85)  kM.push({t:'warn',  m:`⚠️ Weekwerktijdlimiet CBR nadert — nog ${m2s(60*60-kWeekWerk)} over.`});
+  if(kGem16>48*60) kM.push({t:'warn',m:`⚠️ Gemiddelde over 16 weken boven ATW-norm van 48 u (${m2s(kGem16)}).`});
+
+  toonM('k-alerts', kM, kLog.length>0);
+
+  // ──────────────────────────────────────────────────────────
+  // GECOMBINEERDE ATW-BALK
+  // ──────────────────────────────────────────────────────────
+  gauge('c-gauge-dag',   `Dag — bus (${m2s(tTotWerk)}) + CBR (${m2s(kWerk)})`, cDagWerk,  12*60);
+  gauge('c-gauge-week',  `Week — bus + CBR samen`,                              cWeekWerk, 60*60);
+  gauge('c-gauge-gem',   `Gem. 16 weken — gecombineerd`,                                 cGem16,    48*60);
+  gauge('c-gauge-pauze', `Pauze vandaag — alle arbeid samen`,                            cPauze,    60); // 60 min is ruime referentie
+
+  const cM=[];
+  const heeftData = tLog.length>0 || kLog.length>0;
+
+  // Gecombineerde dagwerktijdcheck (ATW max 12 u voor kantoor, maar transport heeft eigen max 13u)
+  // De ATW stelt geen gecombineerd dagmaximum per se, maar bij >12u totaal zit je al boven kantoor-norm
+  if(cDagWerk>13*60)          cM.push({t:'danger',m:`⛔ Gecombineerde dagwerktijd overschrijdt 13 u! (${m2s(cDagWerk)}) — controleer of dit binnen uw CAO past.`});
+  else if(cDagWerk>12*60)      cM.push({t:'warn',  m:`⚠️ Gecombineerde dagwerktijd is ${m2s(cDagWerk)} — boven 12 u, let op ATW-grenzen.`});
+  else if(cDagWerk>12*60*.85)  cM.push({t:'warn',  m:`⚠️ Gecombineerde dagwerktijd nadert 12 u — nog ${m2s(12*60-cDagWerk)} over.`});
+
+  // Gecombineerde weekcheck
+  if(cWeekWerk>60*60)          cM.push({t:'danger',m:`⛔ Gecombineerde weekwerktijd overschreden! (${m2s(cWeekWerk)} > 60:00)`});
+  else if(cWeekWerk>60*60*.85)  cM.push({t:'warn',  m:`⚠️ Gecombineerde weekwerktijdlimiet nadert — nog ${m2s(60*60-cWeekWerk)} over.`});
+
+  // Gecombineerde gem 16 weken
+  if(cGem16>48*60) cM.push({t:'warn',m:`⚠️ Gecombineerd gemiddelde over 16 weken (${m2s(cGem16)}) overschrijdt ATW-norm van 48 u.`});
+
+  // Pauzecheck gecombineerd
+  if(cDagWerk>5.5*60 && cPauze<30) cM.push({t:'danger',m:`⛔ Meer dan 5,5 u arbeid vandaag — minimaal 30 min pauze verplicht! (totaal pauze: ${cPauze} min)`});
+  else if(cDagWerk>5*60 && cPauze<30) cM.push({t:'warn',m:`⚠️ Bijna 5,5 u totale arbeid — zorg voor 30 min pauze.`});
+  if(cDagWerk>10*60 && cPauze<45) cM.push({t:'warn',m:`⚠️ Meer dan 10 u arbeid — 45 min totale pauze vereist.`});
+
+  // Dubbele baan signalering
+  if(tLog.length>0 && kLog.length>0){
+    cM.push({t:'warn',m:`ℹ️ Beide dienstverbanden actief (bus + CBR). Gecombineerde arbeid telt mee voor alle ATW-limieten.`});
+  }
+
+  toonM('c-alerts', cM, heeftData);
+}
+
+
+// ══ HISTORIE ════════════════════════════════════════════════
+function renderHistorie(){
+  const periodeVal = document.getElementById('hist-periode').value;
+  const dagen = laadOpgeslagen();
+  let keys = Object.keys(dagen).sort().reverse(); // nieuwste eerst
+  if(periodeVal !== 'all'){
+    const nDagen = parseInt(periodeVal);
+    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
+    const grensISO = grens.toISOString().slice(0,10);
+    keys = keys.filter(k => k >= grensISO);
+  }
+  const el = document.getElementById('hist-lijst');
+  if(!keys.length){
+    el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.74rem;text-align:center;padding:24px 0;">Geen opgeslagen dagen in deze periode.</div>';
+    return;
+  }
+  el.innerHTML = keys.map(iso => {
+    const d = dagen[iso];
+    const totaalWerk = (d.tWerk||0) + (d.kWerk||0);
+    const totaalPauze = (d.tPauze||0) + (d.kPauze||0);
+    const label = datumLabel(iso);
+    const heeftBus = (d.tLog||[]).length > 0;
+    const heeftCBR = (d.kLog||[]).length > 0;
+    return `<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:0.9rem;color:var(--text);">${label}</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          ${heeftBus?`<span style="background:#f0a50020;border:1px solid #f0a50050;color:#f0a500;border-radius:5px;font-family:'DM Mono',monospace;font-size:0.62rem;padding:2px 7px;">🚌 Bus</span>`:''}
+          ${heeftCBR?`<span style="background:#3b82f620;border:1px solid #3b82f650;color:#93c5fd;border-radius:5px;font-family:'DM Mono',monospace;font-size:0.62rem;padding:2px 7px;">🎓 CBR</span>`:''}
+          <button onclick="laadDagDirect('${iso}')" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;">📂 Laden</button>
+          <button onclick="verwijderDag('${iso}')" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;">🗑</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <div style="text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--at);">${m2s(d.tWerk||0)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Bus werk</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--ak);">${m2s(d.kWerk||0)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">CBR werk</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:#a855f7;">${m2s(totaalWerk)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Totaal</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--muted);">${m2s(totaalPauze)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Pauze</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function laadDagDirect(iso){
+  syncDatum(iso);
+  const dagen = laadOpgeslagen();
+  if(dagen[iso]){ tLog=dagen[iso].tLog||[]; kLog=dagen[iso].kLog||[]; }
+  else { tLog=[]; kLog=[]; }
+  renderT(); renderK(); herbereken();
+  toonPanel('t');
+}
+
+function verwijderDag(iso){
+  if(!confirm(`Dag ${datumLabel(iso)} verwijderen?`)) return;
+  const dagen = laadOpgeslagen();
+  delete dagen[iso];
+  slaAllesOp(dagen);
+  renderHistorie();
+}
+
+function printHistorie(){
+  const periodeVal = document.getElementById('hist-periode').value;
+  const dagen = laadOpgeslagen();
+  let keys = Object.keys(dagen).sort().reverse();
+  if(periodeVal !== 'all'){
+    const nDagen = parseInt(periodeVal);
+    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
+    keys = keys.filter(k => k >= grens.toISOString().slice(0,10));
+  }
+  if(!keys.length){ alert('Geen gegevens om af te drukken.'); return; }
+
+  const periodeLabel = periodeVal==='all'?'Alle dagen':`Laatste ${periodeVal} dagen`;
+  let totBusWerk=0, totCBRWerk=0, totPauze=0;
+  keys.forEach(k=>{ const d=dagen[k]; totBusWerk+=(d.tWerk||0); totCBRWerk+=(d.kWerk||0); totPauze+=(d.tPauze||0)+(d.kPauze||0); });
+
+  const rijen = keys.map(iso => {
+    const d = dagen[iso];
+    const totaal = (d.tWerk||0)+(d.kWerk||0);
+    const pauze = (d.tPauze||0)+(d.kPauze||0);
+    return `<tr>
+      <td>${datumLabel(iso)}</td>
+      <td>${m2s(d.tRij||0)}</td>
+      <td>${m2s(d.tWerk||0)}</td>
+      <td>${m2s(d.kWerk||0)}</td>
+      <td><strong>${m2s(totaal)}</strong></td>
+      <td>${m2s(pauze)}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
+  <title>Arbeidstijden uitdraai</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11pt; margin: 20mm; color: #111; }
+    h1 { font-size: 14pt; margin-bottom: 4px; }
+    p.sub { font-size: 9pt; color: #666; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f0f0f0; text-align: left; padding: 6px 8px; font-size: 9pt; border-bottom: 2px solid #ccc; }
+    td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; font-size: 10pt; }
+    tr:nth-child(even) td { background: #fafafa; }
+    tfoot td { font-weight: bold; border-top: 2px solid #999; background: #f5f5f5; }
+    @media print { body { margin: 10mm; } }
+  </style></head><body>
+  <h1>⏱ Arbeidstijden Tracker — Uitdraai</h1>
+  <p class="sub">Periode: ${periodeLabel} · Afgedrukt op: ${new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+  <table>
+    <thead><tr><th>Datum</th><th>Rijtijd bus</th><th>Werktijd bus</th><th>Werktijd CBR</th><th>Totaal werk</th><th>Pauze</th></tr></thead>
+    <tbody>${rijen}</tbody>
+    <tfoot><tr><td>Totaal (${keys.length} dagen)</td><td></td><td>${m2s(totBusWerk)}</td><td>${m2s(totCBRWerk)}</td><td>${m2s(totBusWerk+totCBRWerk)}</td><td>${m2s(totPauze)}</td></tr></tfoot>
+  </table>
+  <script>window.onload=()=>window.print();<\/script></body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+function exportCSV(){
+  const periodeVal = document.getElementById('hist-periode').value;
+  const dagen = laadOpgeslagen();
+  let keys = Object.keys(dagen).sort();
+  if(periodeVal !== 'all'){
+    const nDagen = parseInt(periodeVal);
+    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
+    keys = keys.filter(k => k >= grens.toISOString().slice(0,10));
+  }
+  if(!keys.length){ alert('Geen gegevens om te exporteren.'); return; }
+  const header = 'Datum;Dag;Rijtijd bus (min);Werktijd bus (min);Pauze bus (min);Werktijd CBR (min);Pauze CBR (min);Totaal werk (min);Totaal pauze (min)\n';
+  const rijen = keys.map(iso => {
+    const d = dagen[iso];
+    const dag = dagNamen[new Date(iso+'T00:00:00').getDay()];
+    const totaal = (d.tWerk||0)+(d.kWerk||0);
+    const pauze = (d.tPauze||0)+(d.kPauze||0);
+    return `${iso};${dag};${d.tRij||0};${d.tWerk||0};${d.tPauze||0};${d.kWerk||0};${d.kPauze||0};${totaal};${pauze}`;
+  }).join('\n');
+  const blob = new Blob(['\uFEFF'+header+rijen], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `arbeidstijden_${keys[0]}_tm_${keys[keys.length-1]}.csv`;
+  a.click();
+}
+
+// ══ FOTO IMPORT ════════════════════════════════════════════let fotoBase64 = null;
+let scanData = [];
+
+function fotoGekozen(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoBase64 = e.target.result.split(',')[1];
+    const prev = document.getElementById('foto-preview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    document.getElementById('btn-scan').style.display = 'block';
+    document.getElementById('scan-status').textContent = 'Foto geladen — klik op "Dienst uitlezen".';
+    document.getElementById('scan-results').innerHTML = '';
+    document.getElementById('btn-add-all').style.display = 'none';
+    scanData = [];
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag-drop op desktop
+const dropArea = document.querySelector('.foto-bar');
+if(dropArea){
+  dropArea.addEventListener('dragover', e => e.preventDefault());
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    if (dt.files.length) { const inp = document.getElementById('foto-input'); inp.files = dt.files; fotoGekozen(inp); }
+  });
+}
+
+async function scanDienst() {
+  if (!fotoBase64) return;
+  const btn = document.getElementById('btn-scan');
+  const status = document.getElementById('scan-status');
+  btn.disabled = true;
+  status.textContent = '⏳ Bezig met uitlezen…';
+  document.getElementById('scan-results').innerHTML = '';
+  document.getElementById('btn-add-all').style.display = 'none';
+
+  const prompt = `Je krijgt een foto van een busdienstkaart (HASTUS-indeling). Lees alle ritten, pauzes en overige tijden uit.
+
+Geef je antwoord UITSLUITEND als een JSON-array (geen markdown, geen uitleg, alleen de array).
+Elk object heeft deze velden:
+- "type": een van "rij", "werk", "pauze" (gebruik "werk" voor opstap-/afstap-/materiaalrijden, "pauze" voor expliciete pauzes op de kaart)
+- "start": "HH:MM"
+- "eind": "HH:MM"
+- "label": korte omschrijving (bijv. "Lijn 51 rit 7001" of "Pauze" of "MAT opstaptijd")
+
+Regels:
+- Opstaptijd en afstaptijd = type "werk"
+- Materiaalritten (MAT) = type "rij"
+- Gaten tussen ritten zonder "Pauze"-vermelding op de kaart = type "werk" (buswissel/wachten)
+- Expliciete "Pauze" op de kaart = type "pauze"
+- Lijnritten = type "rij"
+
+Retourneer alleen de JSON-array.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: fotoBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    scanData = JSON.parse(clean);
+    toonScanResultaten();
+  } catch (err) {
+    status.textContent = '❌ Fout bij uitlezen: ' + err.message;
+  }
+  btn.disabled = false;
+}
+
+const scanLbl = { rij: '🚌 Rijtijd', werk: '💼 Werktijd', pauze: '☕ Pauze' };
+
+function toonScanResultaten() {
+  const status = document.getElementById('scan-status');
+  const list = document.getElementById('scan-results');
+  if (!scanData.length) { status.textContent = '⚠️ Geen activiteiten gevonden.'; return; }
+  status.textContent = `✓ ${scanData.length} activiteiten gevonden — controleer en voeg toe:`;
+  list.innerHTML = scanData.map((item, i) => `
+    <div class="scan-item" id="si-${i}">
+      <div>
+        <div class="si-info">${scanLbl[item.type] || item.type} — ${item.label}</div>
+        <div class="si-sub">${item.start} → ${item.eind}</div>
+      </div>
+      <button class="si-add" onclick="voegScanItemToe(${i})">+ Toevoegen</button>
+    </div>`).join('');
+  document.getElementById('btn-add-all').style.display = 'block';
+}
+
+function voegScanItemToe(i) {
+  const item = scanData[i];
+  let sm = s2m(item.start), em = s2m(item.eind);
+  if (em <= sm) em += 1440;
+  const d = em - sm;
+  if (d <= 0) return;
+  tLog.push({ s: item.start, e: item.eind, type: item.type, duur: d, id: Date.now() + i });
+  renderT(); herbereken();
+  const btn = document.querySelector(`#si-${i} .si-add`);
+  if (btn) { btn.textContent = '✓ Toegevoegd'; btn.classList.add('added'); btn.onclick = null; }
+}
+
+function voegAllesToe() {
+  scanData.forEach((_, i) => {
+    const btn = document.querySelector(`#si-${i} .si-add`);
+    if (btn && !btn.classList.contains('added')) voegScanItemToe(i);
+  });
+  document.getElementById('btn-add-all').style.display = 'none';
+}
+
+
+const t=nuT();
+['t-start','k-start'].forEach(id=>document.getElementById(id).value=t);
+syncDatum(vandaagISO());
+herbereken();
+
+// PWA service worker registratie
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
