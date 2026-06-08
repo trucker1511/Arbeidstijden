@@ -116,60 +116,67 @@
 
   .badge-combo { display:inline-block; background:#a855f720; border:1px solid #a855f760; color:#d8b4fe; border-radius:5px; font-family:'DM Mono',monospace; font-size:0.63rem; padding:2px 7px; vertical-align:middle; margin-left:6px; }
 
-  /* ── Foto import sectie ── */
-  .foto-bar {
+  /* ── Tekst import sectie ── */
+  .import-bar {
     max-width: 900px; margin: 0 auto 20px;
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     padding: 16px 20px;
   }
-  .foto-bar-title {
+  .import-bar-title {
     font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
     letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
     display: flex; align-items: center; gap: 8px;
   }
-  .foto-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#22d3ee; }
-  .foto-drop-area {
-    border: 2px dashed var(--border); border-radius: 10px; padding: 22px;
-    text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
-    font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted);
-    position: relative;
+  .import-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#22d3ee; }
+  .import-bar .datum-rij {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
   }
-  .foto-drop-area:hover, .foto-drop-area.drag-over { border-color: #22d3ee; background: #22d3ee10; color: var(--text); }
-  .foto-drop-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-  .foto-preview { max-height: 140px; border-radius: 8px; margin-top: 10px; display:none; }
-  .btn-scan {
-    width:100%; background:#22d3ee; color:#000; border:none; border-radius:8px;
-    font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px;
-    cursor:pointer; transition:opacity 0.2s; margin-top:10px; display:none;
+  .import-bar textarea {
+    width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    padding: 10px 12px; min-height: 130px; resize: vertical; outline: none;
+    transition: border-color 0.2s; margin-bottom: 10px; line-height: 1.6;
   }
-  .btn-scan:hover { opacity:0.85; }
-  .btn-scan:disabled { opacity:0.4; cursor:not-allowed; }
-  .scan-status {
-    margin-top:10px; font-family:'DM Mono',monospace; font-size:0.76rem;
-    color: var(--muted); min-height: 22px; text-align: center;
+  .import-bar textarea:focus { border-color: #22d3ee; }
+  .import-bar textarea::placeholder { color: var(--muted); }
+  .btn-verwerk {
+    width: 100%; background: #22d3ee; color: #000; border: none; border-radius: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; padding: 12px;
+    cursor: pointer; transition: opacity 0.2s;
   }
-  .scan-result-list { margin-top:12px; display:flex; flex-direction:column; gap:6px; }
-  .scan-item {
-    background: var(--panel); border:1px solid #22d3ee40; border-radius:8px;
-    padding:9px 12px; display:flex; justify-content:space-between; align-items:center;
-    font-family:'DM Mono',monospace; font-size:0.74rem;
+  .btn-verwerk:hover { opacity: 0.85; }
+  .import-resultaten { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .import-item {
+    background: var(--panel); border: 1px solid #22d3ee30; border-radius: 8px;
+    padding: 9px 12px; display: flex; justify-content: space-between; align-items: center;
+    font-family: 'DM Mono', monospace; font-size: 0.74rem; gap: 8px;
   }
-  .scan-item .si-info { color:var(--text); }
-  .scan-item .si-sub { color:var(--muted); font-size:0.64rem; margin-top:2px; }
-  .scan-item .si-add {
-    background:#22d3ee20; border:1px solid #22d3ee60; color:#22d3ee;
-    border-radius:6px; padding:4px 10px; cursor:pointer; font-size:0.68rem;
-    font-family:'DM Mono',monospace; transition:background 0.2s;
-    white-space:nowrap;
+  .import-item .ii-label { color: var(--text); font-size: 0.78rem; }
+  .import-item .ii-sub { color: var(--muted); font-size: 0.64rem; margin-top: 2px; }
+  .import-item .ii-badge {
+    border-radius: 5px; padding: 2px 8px; font-size: 0.64rem; white-space: nowrap;
+    border: 1px solid transparent;
   }
-  .scan-item .si-add:hover { background:#22d3ee40; }
-  .scan-item .si-add.added { background:#22c55e20; border-color:#22c55e60; color:#22c55e; cursor:default; }
-  .btn-add-all {
-    width:100%; background:transparent; border:1px solid #22d3ee60; color:#22d3ee;
-    font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; padding:9px;
-    cursor:pointer; border-radius:8px; margin-top:8px; transition:background 0.2s;
+  .ii-badge.rij  { background:#f0a50020; border-color:#f0a50060; color:#f0a500; }
+  .ii-badge.werk { background:#3b82f620; border-color:#3b82f660; color:#93c5fd; }
+  .ii-badge.pauze{ background:#22c55e20; border-color:#22c55e60; color:#86efac; }
+  .import-acties { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-import-all {
+    flex: 1; background: transparent; border: 1px solid #22d3ee60; color: #22d3ee;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
+    cursor: pointer; border-radius: 8px; transition: background 0.2s;
   }
-  .btn-add-all:hover { background:#22d3ee15; }
+  .btn-import-all:hover { background: #22d3ee15; }
+  .btn-import-bus {
+    flex: 1; background: #f0a50015; border: 1px solid #f0a50060; color: #f0a500;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
+    cursor: pointer; border-radius: 8px; transition: background 0.2s;
+  }
+  .btn-import-cbr {
+    flex: 1; background: #3b82f615; border: 1px solid #3b82f660; color: #93c5fd;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
+    cursor: pointer; border-radius: 8px; transition: background 0.2s;
+  }
 </style>
 </head>
 <body>
@@ -179,20 +186,30 @@
   <p>Rijtijdenwet · EU 561/2006 · Arbeidstijdenwet — Nederland</p>
 </header>
 
-<!-- ══ FOTO IMPORT ══ -->
-<div class="foto-bar">
-  <div class="foto-bar-title">
-    📷 &nbsp;Dienst importeren via foto
+<!-- ══ TEKST IMPORT ══ -->
+<div class="import-bar">
+  <div class="import-bar-title">📋 &nbsp;Diensttijden invoeren</div>
+  <div class="datum-rij">
+    <label style="margin:0;white-space:nowrap;">Datum</label>
+    <input type="date" id="import-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;">
+    <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">Bus of CBR — ook toekomstige dagen</span>
   </div>
-  <label for="foto-input" style="display:block;background:#22d3ee20;border:2px dashed #22d3ee60;color:#22d3ee;border-radius:10px;padding:18px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;min-height:64px;text-align:center;">
-    📸 Foto kiezen
-    <input type="file" accept="image/*" id="foto-input" style="display:none" onchange="fotoGekozen(this)">
-  </label>
-  <img id="foto-preview" class="foto-preview">
-  <button class="btn-scan" id="btn-scan" onclick="scanDienst()">🔍 Dienst uitlezen</button>
-  <div class="scan-status" id="scan-status"></div>
-  <div class="scan-result-list" id="scan-results"></div>
-  <button class="btn-add-all" id="btn-add-all" style="display:none" onclick="voegAllesToe()">✅ Alles toevoegen aan logboek</button>
+  <textarea id="import-tekst" placeholder="Plak hier de tekst van je dienst zoals Claude die uit je dienstkaart heeft gelezen.
+
+Voorbeeld:
+08:12 Opstaptijd
+08:18-10:55 Rijtijd omloop 3275
+10:55-11:00 Buswissel
+11:22-12:00 Pauze
+12:00-15:22 Rijtijd omloop 3208
+15:37 Afstaptijd"></textarea>
+  <button class="btn-verwerk" onclick="verwerkTekst()">📥 Diensttijden verwerken</button>
+  <div id="import-status" style="font-family:'DM Mono',monospace;font-size:0.76rem;color:var(--muted);margin-top:8px;min-height:18px;"></div>
+  <div class="import-resultaten" id="import-resultaten"></div>
+  <div class="import-acties" id="import-acties" style="display:none;">
+    <button class="btn-import-bus" onclick="voegImportToe('bus')">🚌 Toevoegen aan Bus</button>
+    <button class="btn-import-cbr" onclick="voegImportToe('cbr')">🎓 Toevoegen aan CBR</button>
+  </div>
 </div>
 
 
@@ -226,7 +243,7 @@
   <div class="card full" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;">
     <div style="display:flex;align-items:center;gap:12px;">
       <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Datum</span>
-      <input type="date" id="t-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag()">
+      <input type="date" id="t-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag(); syncImportDatum()">
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button onclick="slaOpDag()" style="background:#f0a50020;border:1px solid #f0a50060;color:#f0a500;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">💾 Dag opslaan</button>
@@ -839,134 +856,162 @@ function exportCSV(){
   a.click();
 }
 
-// ══ FOTO IMPORT ════════════════════════════════════════════let fotoBase64 = null;
-let scanData = [];
 
-function fotoGekozen(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    fotoBase64 = e.target.result.split(',')[1];
-    const prev = document.getElementById('foto-preview');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    document.getElementById('btn-scan').style.display = 'block';
-    document.getElementById('scan-status').textContent = 'Foto geladen — klik op "Dienst uitlezen".';
-    document.getElementById('scan-results').innerHTML = '';
-    document.getElementById('btn-add-all').style.display = 'none';
-    scanData = [];
-  };
-  reader.readAsDataURL(file);
+// ══ TEKST IMPORT ════════════════════════════════════════════
+let importData = [];
+
+function syncImportDatum(){
+  const d = document.getElementById('t-datum').value || vandaagISO();
+  document.getElementById('import-datum').value = d;
 }
 
-// Drag-drop op desktop
-const dropArea = document.querySelector('.foto-bar');
-if(dropArea){
-  dropArea.addEventListener('dragover', e => e.preventDefault());
-  dropArea.addEventListener('drop', e => {
-    e.preventDefault();
-    const dt = e.dataTransfer;
-    if (dt.files.length) { const inp = document.getElementById('foto-input'); inp.files = dt.files; fotoGekozen(inp); }
-  });
-}
+// Parser: zet platte tekst om naar tijdsblokken
+function verwerkTekst(){
+  const tekst = document.getElementById('import-tekst').value.trim();
+  if(!tekst){ document.getElementById('import-status').textContent='⚠️ Vul eerst tekst in.'; return; }
 
-async function scanDienst() {
-  if (!fotoBase64) return;
-  const btn = document.getElementById('btn-scan');
-  const status = document.getElementById('scan-status');
-  btn.disabled = true;
-  status.textContent = '⏳ Bezig met uitlezen…';
-  document.getElementById('scan-results').innerHTML = '';
-  document.getElementById('btn-add-all').style.display = 'none';
+  importData = [];
+  const regels = tekst.split('\n').map(r=>r.trim()).filter(r=>r.length>2);
 
-  const prompt = `Je krijgt een foto van een busdienstkaart (HASTUS-indeling). Lees alle ritten, pauzes en overige tijden uit.
+  // Tijdspatronen:
+  // "08:18-10:55 Rijtijd ..." of "08:18 - 10:55 Rijtijd ..."
+  // "08:12 Opstaptijd" (alleen starttijd, eindtijd = volgende starttijd)
+  const tijdBlok = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\s*(.*)/;
+  const tijdEnkel = /^(\d{1,2}:\d{2})\s+(.*)/;
 
-Geef je antwoord UITSLUITEND als een JSON-array (geen markdown, geen uitleg, alleen de array).
-Elk object heeft deze velden:
-- "type": een van "rij", "werk", "pauze" (gebruik "werk" voor opstap-/afstap-/materiaalrijden, "pauze" voor expliciete pauzes op de kaart)
-- "start": "HH:MM"
-- "eind": "HH:MM"
-- "label": korte omschrijving (bijv. "Lijn 51 rit 7001" of "Pauze" of "MAT opstaptijd")
-
-Regels:
-- Opstaptijd en afstaptijd = type "werk"
-- Materiaalritten (MAT) = type "rij"
-- Gaten tussen ritten zonder "Pauze"-vermelding op de kaart = type "werk" (buswissel/wachten)
-- Expliciete "Pauze" op de kaart = type "pauze"
-- Lijnritten = type "rij"
-
-Retourneer alleen de JSON-array.`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: fotoBase64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content.map(i => i.text || '').join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    scanData = JSON.parse(clean);
-    toonScanResultaten();
-  } catch (err) {
-    status.textContent = '❌ Fout bij uitlezen: ' + err.message;
+  // Eerste pass: extract alle tijden en labels
+  const gevonden = [];
+  for(const regel of regels){
+    const mb = tijdBlok.exec(regel);
+    if(mb){
+      gevonden.push({ start: mb[1], eind: mb[2], label: mb[3].trim(), heeftEind: true });
+      continue;
+    }
+    const me = tijdEnkel.exec(regel);
+    if(me){
+      gevonden.push({ start: me[1], eind: null, label: me[2].trim(), heeftEind: false });
+    }
   }
-  btn.disabled = false;
+
+  // Tweede pass: vul eindtijden in voor enkeltijdsregels
+  for(let i=0; i<gevonden.length; i++){
+    if(!gevonden[i].heeftEind){
+      // Eindtijd = starttijd van volgende
+      if(i+1 < gevonden.length){
+        gevonden[i].eind = gevonden[i+1].start;
+      } else {
+        gevonden[i].eind = gevonden[i].start; // laatste regel zonder eindtijd overslaan
+        continue;
+      }
+    }
+    const sm = s2m(gevonden[i].start), em = s2m(gevonden[i].eind);
+    if(em <= sm) continue; // skip als 0 of negatief
+    gevonden[i].type = classificeer(gevonden[i].label);
+    importData.push(gevonden[i]);
+  }
+
+  toonImportResultaten();
 }
 
-const scanLbl = { rij: '🚌 Rijtijd', werk: '💼 Werktijd', pauze: '☕ Pauze' };
+function classificeer(label){
+  const l = label.toLowerCase();
+  // Pauze
+  if(/pauze|rust|break|joinup/.test(l)) return 'pauze';
+  // Rijtijd
+  if(/rij|lijn|route|omloop|mat|pull.?out|pull-out|materiaal/.test(l)) return 'rij';
+  // Opstap/afstap/buswissel/andere arbeid
+  if(/opstap|afstap|wissel|administratie|kantoor|briefing|debriefing|werk|examin|cbr|theorie/.test(l)) return 'werk';
+  // Default: als het een tijdsblok is met inhoud, waarschijnlijk rijtijd
+  return 'rij';
+}
 
-function toonScanResultaten() {
-  const status = document.getElementById('scan-status');
-  const list = document.getElementById('scan-results');
-  if (!scanData.length) { status.textContent = '⚠️ Geen activiteiten gevonden.'; return; }
-  status.textContent = `✓ ${scanData.length} activiteiten gevonden — controleer en voeg toe:`;
-  list.innerHTML = scanData.map((item, i) => `
-    <div class="scan-item" id="si-${i}">
+const impLbl = { rij:'🚌 Rijtijd', werk:'💼 Andere arbeid', pauze:'☕ Pauze' };
+
+function toonImportResultaten(){
+  const status = document.getElementById('import-status');
+  const lijst = document.getElementById('import-resultaten');
+  const acties = document.getElementById('import-acties');
+
+  if(!importData.length){
+    status.textContent = '⚠️ Geen tijdblokken herkend. Controleer het formaat.';
+    lijst.innerHTML = '';
+    acties.style.display = 'none';
+    return;
+  }
+
+  status.textContent = `✓ ${importData.length} activiteiten herkend — kies hieronder waarheen:`;
+  lijst.innerHTML = importData.map((item,i) => `
+    <div class="import-item">
       <div>
-        <div class="si-info">${scanLbl[item.type] || item.type} — ${item.label}</div>
-        <div class="si-sub">${item.start} → ${item.eind}</div>
+        <div class="ii-label">${item.label || '(geen omschrijving)'}</div>
+        <div class="ii-sub">${item.start} → ${item.eind} &nbsp;(${m2s(s2m(item.eind)-s2m(item.start))})</div>
       </div>
-      <button class="si-add" onclick="voegScanItemToe(${i})">+ Toevoegen</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="ii-badge ${item.type}">${impLbl[item.type]}</span>
+        <select onchange="importData[${i}].type=this.value;toonImportResultaten()" style="width:auto;margin:0;padding:3px 6px;font-size:0.68rem;background:var(--panel);">
+          <option value="rij"  ${item.type==='rij'  ?'selected':''}>Rijtijd</option>
+          <option value="werk" ${item.type==='werk' ?'selected':''}>Andere arbeid</option>
+          <option value="pauze"${item.type==='pauze'?'selected':''}>Pauze</option>
+        </select>
+      </div>
     </div>`).join('');
-  document.getElementById('btn-add-all').style.display = 'block';
+  acties.style.display = 'flex';
 }
 
-function voegScanItemToe(i) {
-  const item = scanData[i];
-  let sm = s2m(item.start), em = s2m(item.eind);
-  if (em <= sm) em += 1440;
-  const d = em - sm;
-  if (d <= 0) return;
-  tLog.push({ s: item.start, e: item.eind, type: item.type, duur: d, id: Date.now() + i });
-  renderT(); herbereken();
-  const btn = document.querySelector(`#si-${i} .si-add`);
-  if (btn) { btn.textContent = '✓ Toegevoegd'; btn.classList.add('added'); btn.onclick = null; }
-}
+function voegImportToe(doel){
+  if(!importData.length) return;
 
-function voegAllesToe() {
-  scanData.forEach((_, i) => {
-    const btn = document.querySelector(`#si-${i} .si-add`);
-    if (btn && !btn.classList.contains('added')) voegScanItemToe(i);
+  // Datum uit import-datum veld
+  const datum = document.getElementById('import-datum').value || vandaagISO();
+  syncDatum(datum);
+
+  // Laad bestaande dag (niet overschrijven!)
+  const dagen = laadOpgeslagen();
+  if(dagen[datum]){
+    tLog = dagen[datum].tLog || [];
+    kLog = dagen[datum].kLog || [];
+  }
+
+  // Voeg toe aan juiste log
+  importData.forEach((item, i) => {
+    const sm = s2m(item.start);
+    let em = s2m(item.eind);
+    if(em <= sm) em += 1440;
+    const entry = { s: item.start, e: item.eind, type: item.type, duur: em-sm, id: Date.now()+i };
+    if(doel === 'bus') tLog.push(entry);
+    else kLog.push(entry);
   });
-  document.getElementById('btn-add-all').style.display = 'none';
+
+  renderT(); renderK(); herbereken();
+
+  // Automatisch opslaan
+  slaOpDagStil(datum);
+
+  // Feedback
+  const doelNaam = doel==='bus' ? '🚌 Bus' : '🎓 CBR';
+  document.getElementById('import-status').textContent = `✓ ${importData.length} activiteiten toegevoegd aan ${doelNaam} op ${datumLabel(datum)}`;
+  document.getElementById('import-acties').style.display = 'none';
+  importData = [];
+
+  // Navigeer naar het juiste tabblad
+  toonPanel(doel === 'bus' ? 't' : 'k');
+}
+
+function slaOpDagStil(datum){
+  const dagen = laadOpgeslagen();
+  let tRij=0, tWerk=0, tPauze=0;
+  tLog.forEach(r=>{ if(r.type==='rij') tRij+=r.duur; if(r.type==='werk') tWerk+=r.duur; if(r.type==='pauze') tPauze+=r.duur; });
+  let kWerk=0, kPauze=0;
+  kLog.forEach(r=>{ if(r.type==='werk') kWerk+=r.duur; if(r.type==='pauze') kPauze+=r.duur; });
+  dagen[datum] = { datum, tLog:[...tLog], kLog:[...kLog], tRij, tWerk: tRij+tWerk, tPauze, kWerk, kPauze };
+  slaAllesOp(dagen);
 }
 
 
 const t=nuT();
 ['t-start','k-start'].forEach(id=>document.getElementById(id).value=t);
 syncDatum(vandaagISO());
+syncImportDatum();
 herbereken();
 
 // PWA service worker registratie
