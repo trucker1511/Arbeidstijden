@@ -2,453 +2,848 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Arbeidstijden Tracker</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#0a0c12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Arbeidstijden">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#0f1117; --panel:#181c27; --border:#252a3a;
-  --text:#e8eaf0; --muted:#6b7280; --card:#1e2333;
-  --at:#f0a500; --cbr:#3b82f6; --vr:#a855f7;
-  --ok:#22c55e; --warn:#f97316; --danger:#ef4444;
+:root{
+  --bg:#0a0c12; --card:#13161f; --panel:#1a1e2a; --border:#222636;
+  --text:#e8eaf0; --muted:#555c70; --dim:#3a4055;
+  --bus:#f0a500; --cbr:#3b82f6; --vr:#a855f7;
+  --ok:#22c55e; --warn:#f97316; --danger:#ef4444; --info:#22d3ee;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px 12px 60px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;}
+body{padding:12px 12px 80px;max-width:520px;margin:0 auto;}
 
-header{text-align:center;margin-bottom:18px;}
-header h1{font-size:1.6rem;font-weight:800;letter-spacing:-1px;color:var(--at);}
-header p{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+/* ── Header ── */
+.hdr{text-align:center;padding:10px 0 14px;}
+.hdr h1{font-size:1.4rem;font-weight:800;color:var(--bus);letter-spacing:-.5px;}
+.hdr p{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
 
-/* ── Gemeenschappelijke card ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;max-width:900px;margin:0 auto 14px;}
-.ct{font-size:0.65rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
-.ct::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;}
-.ct.at::before{background:var(--at);}
-.ct.cbr::before{background:var(--cbr);}
-.ct.vr::before{background:var(--vr);}
-.ct.combo::before{background:#22d3ee;}
-.ct.hist::before{background:#ec4899;}
+/* ── Section card ── */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 15px;margin-bottom:10px;}
+.sec-title{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sec-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--info);flex-shrink:0;}
 
-/* ── Invoer lookup ── */
-.lookup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-@media(max-width:480px){.lookup-grid{grid-template-columns:1fr;}}
-label{display:block;font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
-input[type="date"],input[type="time"],input[type="text"],input[type="number"],select{
-  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+/* ── Stap labels ── */
+.stap{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--info);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+
+/* ── Datum ── */
+input[type="date"]{
+  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:'DM Mono',monospace;font-size:1rem;padding:10px 12px;
+  outline:none;-webkit-appearance:none;
+}
+input[type="date"]:focus{border-color:var(--info);}
+
+/* ── Discipline knoppen ── */
+.disc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;}
+.disc-btn{
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;
+  color:var(--muted);padding:11px 6px;cursor:pointer;text-align:center;
+  transition:all .15s;line-height:1.3;
+}
+.disc-btn .disc-icon{font-size:1.1rem;display:block;margin-bottom:2px;}
+.disc-btn.active-bus{background:#f0a50018;border-color:var(--bus);color:var(--bus);}
+.disc-btn.active-cbr{background:#3b82f618;border-color:var(--cbr);color:var(--cbr);}
+.disc-btn.active-vr {background:#a855f718;border-color:var(--vr); color:var(--vr);}
+
+/* ── Invoer stap 3 ── */
+.invoer-blok{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+input[type="text"],input[type="time"],input[type="number"],select{
+  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;
   color:var(--text);font-family:'DM Mono',monospace;font-size:0.95rem;
-  padding:9px 11px;margin-bottom:10px;outline:none;-webkit-appearance:none;transition:border-color .2s;
+  padding:10px 12px;outline:none;-webkit-appearance:none;margin-bottom:8px;
 }
-input:focus,select:focus{border-color:var(--at);}
+input[type="text"]:focus,input[type="time"]:focus,input[type="number"]:focus,select:focus{border-color:var(--info);}
+.lbl{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;display:block;}
 
-.btn{width:100%;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:11px;cursor:pointer;transition:opacity .2s;}
-.btn:hover{opacity:.85;}
-.btn-at{background:var(--at);color:#000;}
+.btn{width:100%;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:12px;cursor:pointer;transition:opacity .15s;}
+.btn:hover{opacity:.85;} .btn:active{opacity:.7;}
+.btn-bus{background:var(--bus);color:#000;}
 .btn-cbr{background:var(--cbr);color:#fff;}
-.btn-vr{background:var(--vr);color:#fff;}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
-.btn-ghost:hover{color:var(--text);border-color:var(--muted);}
-.btn-row{display:flex;gap:8px;}
-.btn-row .btn{flex:1;}
+.btn-vr {background:var(--vr); color:#fff;}
+.btn-ghost{background:var(--panel);border:1px solid var(--border);color:var(--muted);}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.status-line{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);min-height:18px;margin-top:6px;}
 
-/* ── Dagtotalen summary ── */
-.day-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
-.ds-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
-.ds-val{font-size:1.3rem;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:3px;}
-.ds-lbl{font-size:0.6rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
-.ds-val.at{color:var(--at);}
-.ds-val.cbr{color:var(--cbr);}
-.ds-val.vr{color:var(--vr);}
-.ds-val.combo{color:#22d3ee;}
-.ds-val.ok{color:var(--ok);}
-.ds-val.warn{color:var(--warn);}
-.ds-val.danger{color:var(--danger);}
+/* ── Dagsamenvatting ── */
+.dag-kop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.dag-kop .datum-lbl{font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--text);font-weight:500;}
+.dag-kop .dienst-lbl{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);}
 
-/* ── Gauge ── */
-.gw{margin-bottom:11px;}
-.gl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.67rem;color:var(--muted);margin-bottom:4px;}
-.gl span:last-child{color:var(--text);font-size:0.78rem;}
-.gb{width:100%;height:8px;background:var(--panel);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
-.gf{height:100%;border-radius:99px;transition:width .4s,background .3s;}
-.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;}
+.dag-tijden{display:flex;justify-content:space-between;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:8px;}
+.dag-tijd-blok{text-align:center;}
+.dag-tijd-blok .val{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--text);}
+.dag-tijd-blok .sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;margin-top:2px;}
 
-/* ── Resterende tellers ── */
-.rest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-@media(max-width:400px){.rest-grid{grid-template-columns:1fr 1fr;}}
-.rest-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 11px;text-align:center;}
-.rest-val{font-size:1.1rem;font-weight:800;font-family:'DM Mono',monospace;margin-bottom:2px;}
-.rest-lbl{font-size:0.57rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;line-height:1.4;}
+.totalen-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;}
+.tot-blok{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:9px 8px;text-align:center;}
+.tot-val{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:500;line-height:1;}
+.tot-sub{font-family:'DM Mono',monospace;font-size:0.57rem;color:var(--muted);text-transform:uppercase;margin-top:3px;line-height:1.3;}
+.tot-blok.bus .tot-val{color:var(--bus);}
+.tot-blok.cbr .tot-val{color:var(--cbr);}
+.tot-blok.vr  .tot-val{color:var(--vr);}
+.tot-blok.pauze .tot-val{color:var(--ok);}
+.tot-blok.combo .tot-val{color:var(--info);}
+
+.disc-balk{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.disc-tag{font-family:'DM Mono',monospace;font-size:0.62rem;padding:3px 8px;border-radius:5px;border:1px solid transparent;}
+.disc-tag.bus{background:#f0a50015;border-color:#f0a50050;color:var(--bus);}
+.disc-tag.cbr{background:#3b82f615;border-color:#3b82f650;color:var(--cbr);}
+.disc-tag.vr {background:#a855f715;border-color:#a855f750;color:var(--vr);}
+
+/* ── Aftellers ── */
+.aft-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.aft-blok{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 11px;display:flex;justify-content:space-between;align-items:center;}
+.aft-val{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:500;}
+.aft-info{text-align:right;}
+.aft-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;line-height:1.4;}
+.aft-max{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--dim);}
+.ok{color:var(--ok);} .warn{color:var(--warn);} .danger{color:var(--danger);}
 
 /* ── Rust ── */
-.rust-block{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;}
-.rust-val{font-size:1.1rem;font-weight:800;font-family:'DM Mono',monospace;}
-.rust-lbl{font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted);}
+.rust-blok{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.rust-val{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;}
+.rust-lbl{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;margin-top:2px;}
 
-/* ── Alerts ── */
-.alerts{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
-.alert{border-radius:8px;padding:10px 13px;font-size:0.78rem;border:1px solid transparent;line-height:1.5;}
-.alert.ok{background:#052e16;border-color:#166534;color:#86efac;}
-.alert.warn{background:#1c1008;border-color:#92400e;color:#fdba74;}
+/* ── Gauges ── */
+.gauge{margin-bottom:9px;}
+.gauge-hdr{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:4px;}
+.gauge-hdr span:last-child{color:var(--text);}
+.gauge-bar{height:7px;background:var(--panel);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.gauge-fill{height:100%;border-radius:99px;transition:width .4s,background .3s;}
+
+/* ── Meldingen ── */
+.alert{border-radius:8px;padding:9px 12px;font-family:'DM Mono',monospace;font-size:0.74rem;border:1px solid transparent;line-height:1.5;margin-bottom:6px;}
+.alert.ok    {background:#052e16;border-color:#166534;color:#86efac;}
+.alert.warn  {background:#1c1008;border-color:#92400e;color:#fdba74;}
 .alert.danger{background:#1c0a0a;border-color:#991b1b;color:#fca5a5;}
-.alert.info{background:#0c1a2e;border-color:#1e40af;color:#93c5fd;}
+.alert.info  {background:#0c1a2e;border-color:#1e40af;color:#93c5fd;}
 
-/* ── Tabs ── */
-.tabs{display:flex;gap:7px;max-width:900px;margin:0 auto 14px;}
-.tab{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--muted);transition:all .2s;user-select:none;}
-.tab-sub{font-size:0.58rem;font-family:'DM Mono',monospace;font-weight:400;margin-top:2px;opacity:.75;text-transform:uppercase;}
-.tab.act-t{color:#000;background:var(--at);border-color:var(--at);}
-.tab.act-k{color:#fff;background:var(--cbr);border-color:var(--cbr);}
-.tab.act-v{color:#fff;background:var(--vr);border-color:var(--vr);}
-.tab.act-h{color:#fff;background:#ec4899;border-color:#ec4899;}
-.panel{display:none;}.panel.active{display:block;}
-
-/* ── Handmatige invoer ── */
-.invoer-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-@media(max-width:480px){.invoer-row{grid-template-columns:1fr 1fr;}}
-
-/* ── Logboek ── */
-.log-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-top:8px;}
-.log-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:0.74rem;}
-.li-lbl{color:var(--text);}.li-sub{color:var(--muted);font-size:0.63rem;margin-top:1px;}
-.log-item button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;font-size:0.63rem;border-radius:5px;cursor:pointer;}
-.log-item button:hover{color:var(--danger);border-color:var(--danger);}
+/* ── Week instellingen ── */
+details summary{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);cursor:pointer;padding:4px 0;user-select:none;}
+.week-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.week-grid label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;}
 
 /* ── Historie ── */
-.hist-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:9px;}
-.hist-datum{font-weight:700;font-family:'DM Mono',monospace;font-size:0.88rem;margin-bottom:8px;}
-.hist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.hist-cell{text-align:center;}
-.hist-val{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:800;}
-.hist-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;}
-.hist-actions{display:flex;gap:6px;margin-top:10px;}
-.hist-actions button{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.65rem;padding:5px;border-radius:6px;cursor:pointer;}
+.hist-dag{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-bottom:7px;}
+.hist-kop{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.hist-datum{font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:500;}
+.hist-acties button{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.6rem;padding:3px 8px;border-radius:5px;cursor:pointer;margin-left:5px;}
+.hist-acties button:hover{color:var(--danger);border-color:var(--danger);}
+.hist-rij{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.hist-cel{text-align:center;background:var(--card);border-radius:6px;padding:6px 4px;}
+.hist-val{font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:500;}
+.hist-lbl{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);text-transform:uppercase;margin-top:2px;}
 
-details summary{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);cursor:pointer;user-select:none;padding:4px 0;}
-textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;padding:10px;min-height:90px;resize:vertical;outline:none;margin-bottom:8px;line-height:1.6;}
-.reset-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.68rem;padding:7px;margin-top:8px;width:100%;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;}
-.reset-btn:hover{color:var(--danger);border-color:var(--danger);}
+/* ── Bottom nav ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;max-width:520px;margin:0 auto;}
+.bnav-btn{flex:1;padding:10px 4px 14px;text-align:center;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;transition:color .15s;}
+.bnav-btn .icon{font-size:1.2rem;display:block;margin-bottom:1px;}
+.bnav-btn.active{color:var(--bus);}
+.bnav-btn.active.cbr{color:var(--cbr);}
+.bnav-btn.active.vr{color:var(--vr);}
+.bnav-btn.active.hist{color:#ec4899;}
+
+/* ── Views ── */
+.view{display:none;} .view.active{display:block;}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>⏱ Arbeidstijden Tracker</h1>
-  <p>Rijtijdenwet · ATW — Bus · CBR · Vrachtauto</p>
-</header>
+<div class="hdr">
+  <h1>⏱ Arbeidstijden</h1>
+  <p>Rijtijdenwet · ATW · Bus · CBR · Vracht</p>
+</div>
 
-<!-- ══ DIENST INVOER ══ -->
-<div class="card">
-  <div class="ct combo">🚌 Dienst inladen / handmatig toevoegen</div>
+<!-- ═══════════════════════════════════════════════
+     VIEW 1: INVOER
+════════════════════════════════════════════════ -->
+<div class="view active" id="view-invoer">
 
-  <div class="lookup-grid">
-    <div>
-      <label>Datum</label>
-      <input type="date" id="inp-datum">
-    </div>
-    <div>
-      <label>Dienstnummer (EBS)</label>
-      <input type="text" id="inp-dienst" placeholder="bijv. 4717" inputmode="numeric"
-        onkeydown="if(event.key==='Enter') laadDienst()">
+  <div class="sec">
+    <div class="stap">Stap 1 — Datum</div>
+    <input type="date" id="inp-datum">
+
+    <div class="stap" style="margin-top:12px;">Stap 2 — Discipline</div>
+    <div class="disc-row">
+      <div class="disc-btn" id="btn-bus" onclick="kiesDisc('bus')">
+        <span class="disc-icon">🚌</span>Bus
+      </div>
+      <div class="disc-btn" id="btn-cbr" onclick="kiesDisc('cbr')">
+        <span class="disc-icon">🎓</span>CBR
+      </div>
+      <div class="disc-btn" id="btn-vr" onclick="kiesDisc('vr')">
+        <span class="disc-icon">🚛</span>Vracht
+      </div>
     </div>
   </div>
-  <button class="btn btn-at" onclick="laadDienst()">🚌 Dienst inladen</button>
-  <div id="dienst-status" style="font-family:'DM Mono',monospace;font-size:0.74rem;color:var(--muted);margin-top:8px;min-height:16px;"></div>
 
-  <!-- Handmatige toevoeging -->
-  <details style="margin-top:14px;">
-    <summary>✏️ Handmatig uren toevoegen (CBR / Vrachtauto / overig)</summary>
-    <div style="margin-top:10px;">
-      <div class="invoer-row">
+  <!-- Stap 3: Bus -->
+  <div class="sec invoer-blok" id="blok-bus" style="display:none;">
+    <div class="stap">Stap 3 — Dienstnummer</div>
+    <input type="text" id="inp-dienst" placeholder="bijv. 4717" inputmode="numeric"
+      onkeydown="if(event.key==='Enter') laadDienst()">
+    <button class="btn btn-bus" onclick="laadDienst()">🚌 Dienst inladen</button>
+    <div class="status-line" id="status-bus"></div>
+  </div>
+
+  <!-- Stap 3: CBR -->
+  <div class="sec invoer-blok" id="blok-cbr" style="display:none;">
+    <div class="stap">Stap 3 — CBR werkzaamheden</div>
+    <button class="btn btn-cbr" style="margin-bottom:8px;" onclick="laadCBRStandaard()">
+      📋 Standaard dag (07:50 – 16:45)
+    </button>
+    <div style="text-align:center;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:10px;">of handmatige tijden</div>
+    <span class="lbl">Van</span>
+    <input type="time" id="cbr-start" value="07:50">
+    <span class="lbl">Tot</span>
+    <input type="time" id="cbr-eind" value="16:45">
+    <span class="lbl">Pauze (minuten)</span>
+    <input type="number" id="cbr-pauze" value="30" min="0" max="120">
+    <button class="btn btn-cbr" onclick="laadCBRHandmatig()">🎓 CBR dag inladen</button>
+    <div class="status-line" id="status-cbr"></div>
+  </div>
+
+  <!-- Stap 3: Vrachtauto -->
+  <div class="sec invoer-blok" id="blok-vr" style="display:none;">
+    <div class="stap">Stap 3 — Vrachtwagen tijden</div>
+    <span class="lbl">Starttijd</span>
+    <input type="time" id="vr-start">
+    <span class="lbl">Eindtijd</span>
+    <input type="time" id="vr-eind">
+    <span class="lbl">Rijtijd (u:mm)</span>
+    <input type="time" id="vr-rij" placeholder="bijv. 04:30">
+    <span class="lbl">Pauze (minuten)</span>
+    <input type="number" id="vr-pauze" value="45" min="0" max="120">
+    <button class="btn btn-vr" onclick="laadVrachtHandmatig()">🚛 Vrachttijden inladen</button>
+    <div class="status-line" id="status-vr"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     VIEW 2: DAGOVERZICHT
+════════════════════════════════════════════════ -->
+<div class="view" id="view-dag">
+
+  <!-- Dagsamenvatting -->
+  <div class="sec">
+    <div class="dag-kop">
+      <span class="datum-lbl" id="dag-datum-lbl">—</span>
+      <span class="dienst-lbl" id="dag-dienst-lbl"></span>
+    </div>
+
+    <div class="disc-balk" id="disc-tags"></div>
+
+    <div class="dag-tijden">
+      <div class="dag-tijd-blok">
+        <div class="val" id="dag-start">—</div>
+        <div class="sub">Start</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;color:var(--muted);font-size:1.2rem;align-self:center;">→</div>
+      <div class="dag-tijd-blok">
+        <div class="val" id="dag-eind">—</div>
+        <div class="sub">Eind</div>
+      </div>
+      <div style="width:1px;background:var(--border);"></div>
+      <div class="dag-tijd-blok">
+        <div class="val" id="dag-aanwezig">—</div>
+        <div class="sub">Aanwezig</div>
+      </div>
+    </div>
+
+    <div class="totalen-grid">
+      <div class="tot-blok bus">
+        <div class="tot-val" id="tot-rij">0:00</div>
+        <div class="tot-sub">🚌 Rijtijd bus</div>
+      </div>
+      <div class="tot-blok cbr">
+        <div class="tot-val" id="tot-cbr">0:00</div>
+        <div class="tot-sub">🎓 CBR arbeid</div>
+      </div>
+      <div class="tot-blok vr">
+        <div class="tot-val" id="tot-vr">0:00</div>
+        <div class="tot-sub">🚛 Vracht rij</div>
+      </div>
+      <div class="tot-blok bus">
+        <div class="tot-val" id="tot-werk-bus">0:00</div>
+        <div class="tot-sub">💼 Arbeid bus</div>
+      </div>
+      <div class="tot-blok pauze">
+        <div class="tot-val" id="tot-pauze">0:00</div>
+        <div class="tot-sub">☕ Pauze</div>
+      </div>
+      <div class="tot-blok combo">
+        <div class="tot-val" id="tot-dag">0:00</div>
+        <div class="tot-sub">Dag totaal</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="showView('invoer')" style="font-size:0.78rem;">✏️ Aanpassen</button>
+      <button class="btn btn-ghost" onclick="resetDag()" style="font-size:0.78rem;color:var(--danger);">🗑 Wissen</button>
+    </div>
+  </div>
+
+  <!-- Nachtrust -->
+  <div class="sec">
+    <div class="sec-title">🌙 Nachtrust</div>
+    <div class="rust-blok">
+      <div>
+        <div class="rust-lbl">Rusttijd na vorige dag</div>
+        <div class="rust-val" id="rust-val">— uur</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="rust-lbl">Status</div>
+        <div id="rust-status" style="font-family:'DM Mono',monospace;font-size:0.78rem;" class="ok">—</div>
+      </div>
+    </div>
+    <details>
+      <summary>⚙️ Eindtijd vorige dag instellen</summary>
+      <div style="margin-top:8px;">
+        <span class="lbl">Eindtijd gisteren</span>
+        <input type="time" id="prev-eind" onchange="herbereken()">
+      </div>
+    </details>
+  </div>
+
+  <!-- Aftellers -->
+  <div class="sec">
+    <div class="sec-title">⏳ Resterende uren</div>
+    <div class="aft-grid">
+      <div class="aft-blok">
+        <div class="aft-val ok" id="aft-rij-dag">9:00</div>
+        <div class="aft-info">
+          <div class="aft-lbl">Rijtijd<br>vandaag</div>
+          <div class="aft-max">max 9:00</div>
+        </div>
+      </div>
+      <div class="aft-blok">
+        <div class="aft-val ok" id="aft-rij-week">56:00</div>
+        <div class="aft-info">
+          <div class="aft-lbl">Rijtijd<br>deze week</div>
+          <div class="aft-max">max 56:00</div>
+        </div>
+      </div>
+      <div class="aft-blok">
+        <div class="aft-val ok" id="aft-werk-dag">12:00</div>
+        <div class="aft-info">
+          <div class="aft-lbl">Arbeid ATW<br>vandaag</div>
+          <div class="aft-max">max 12:00</div>
+        </div>
+      </div>
+      <div class="aft-blok">
+        <div class="aft-val ok" id="aft-werk-week">60:00</div>
+        <div class="aft-info">
+          <div class="aft-lbl">Arbeid ATW<br>deze week</div>
+          <div class="aft-max">max 60:00</div>
+        </div>
+      </div>
+    </div>
+
+    <details style="margin-top:10px;">
+      <summary>⚙️ Vorige dagen deze week</summary>
+      <div class="week-grid">
         <div>
-          <label>Van</label>
-          <input type="time" id="man-start">
+          <label>Rijtijd bus (uren)</label>
+          <input type="number" id="prev-rij" value="0" min="0" max="56" step="0.5" onchange="herbereken()">
         </div>
         <div>
-          <label>Tot</label>
-          <input type="time" id="man-eind">
-        </div>
-        <div>
-          <label>Type</label>
-          <select id="man-type">
-            <option value="rij-bus">🚌 Rijtijd bus</option>
-            <option value="werk-bus">💼 Arbeid bus</option>
-            <option value="werk-cbr">🎓 CBR examen</option>
-            <option value="rij-vr">🚛 Rijtijd vracht</option>
-            <option value="werk-vr">💼 Arbeid vracht</option>
-            <option value="pauze">☕ Pauze</option>
-          </select>
+          <label>Totale arbeid (uren)</label>
+          <input type="number" id="prev-werk" value="0" min="0" max="60" step="0.5" onchange="herbereken()">
         </div>
       </div>
-      <div class="btn-row" style="margin-top:-4px;">
-        <button class="btn btn-ghost" onclick="voegHandmatigToe()">+ Toevoegen aan logboek</button>
-        <button class="btn btn-ghost" onclick="slaOpDag(true)" style="flex:0.5">💾 Opslaan</button>
-      </div>
-    </div>
-  </details>
+    </details>
+  </div>
+
+  <!-- Gauges -->
+  <div class="sec">
+    <div class="sec-title">📊 Limieten</div>
+    <div id="gauge-rij-dag"></div>
+    <div id="gauge-rij-week"></div>
+    <div id="gauge-werk-dag"></div>
+    <div id="gauge-werk-week"></div>
+  </div>
+
+  <!-- Meldingen -->
+  <div id="meldingen-wrap"></div>
+
 </div>
 
-<!-- ══ DASHBOARD: VANDAAG ══ -->
-<div class="card" id="dashboard-card">
-  <div class="ct combo">📊 Vandaag — <span id="dash-datum-lbl" style="color:var(--text);">—</span></div>
-
-  <!-- Dagtotalen per discipline -->
-  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Totalen per discipline</div>
-  <div class="day-summary">
-    <div class="ds-block">
-      <div class="ds-val at" id="d-rij-bus">0:00</div>
-      <div class="ds-lbl">🚌 Rijtijd bus</div>
+<!-- ═══════════════════════════════════════════════
+     VIEW 3: HISTORIE
+════════════════════════════════════════════════ -->
+<div class="view" id="view-hist">
+  <div class="sec">
+    <div class="sec-title">📅 Historie</div>
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:7px;margin-bottom:12px;align-items:center;">
+      <select id="hist-periode" onchange="renderHistorie()" style="margin-bottom:0;">
+        <option value="14">Laatste 14 dagen</option>
+        <option value="7">Laatste 7 dagen</option>
+        <option value="30">Laatste 30 dagen</option>
+        <option value="all">Alle</option>
+      </select>
+      <button onclick="printHistorie()" class="btn btn-ghost" style="padding:10px;white-space:nowrap;">🖨️</button>
+      <button onclick="exportCSV()" class="btn btn-ghost" style="padding:10px;white-space:nowrap;">CSV</button>
     </div>
-    <div class="ds-block">
-      <div class="ds-val at" id="d-werk-bus">0:00</div>
-      <div class="ds-lbl">💼 Arbeid bus</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val cbr" id="d-werk-cbr">0:00</div>
-      <div class="ds-lbl">🎓 CBR</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val vr" id="d-rij-vr">0:00</div>
-      <div class="ds-lbl">🚛 Rijtijd vracht</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val vr" id="d-werk-vr">0:00</div>
-      <div class="ds-lbl">💼 Arbeid vracht</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val ok" id="d-pauze">0:00</div>
-      <div class="ds-lbl">☕ Pauze</div>
-    </div>
-  </div>
-
-  <!-- Gecombineerde totalen -->
-  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;">Gecombineerd totaal</div>
-  <div class="day-summary" style="grid-template-columns:1fr 1fr 1fr;">
-    <div class="ds-block">
-      <div class="ds-val combo" id="d-rij-tot">0:00</div>
-      <div class="ds-lbl">Totaal rijtijd</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val combo" id="d-werk-tot">0:00</div>
-      <div class="ds-lbl">Totaal arbeid</div>
-    </div>
-    <div class="ds-block">
-      <div class="ds-val combo" id="d-dag-tot">0:00</div>
-      <div class="ds-lbl">Dag totaal</div>
-    </div>
-  </div>
-
-  <!-- ATW Gauges -->
-  <div style="margin-top:12px;">
-    <div class="gauge-grid">
-      <div class="gw" id="g-dag-rij"></div>
-      <div class="gw" id="g-dag-werk"></div>
-      <div class="gw" id="g-week-rij"></div>
-      <div class="gw" id="g-week-werk"></div>
-    </div>
-  </div>
-
-  <!-- Resterende uren tellers -->
-  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;">Nog beschikbaar vandaag</div>
-  <div class="rest-grid">
-    <div class="rest-block">
-      <div class="rest-val" id="r-rij-dag" style="color:var(--ok);">9:00</div>
-      <div class="rest-lbl">Rijtijd<br>dag (bus)</div>
-    </div>
-    <div class="rest-block">
-      <div class="rest-val" id="r-rij-week" style="color:var(--ok);">56:00</div>
-      <div class="rest-lbl">Rijtijd<br>week (bus)</div>
-    </div>
-    <div class="rest-block">
-      <div class="rest-val" id="r-werk-dag" style="color:var(--ok);">12:00</div>
-      <div class="rest-lbl">Arbeid<br>dag (ATW)</div>
-    </div>
-    <div class="rest-block">
-      <div class="rest-val" id="r-werk-week" style="color:var(--ok);">60:00</div>
-      <div class="rest-lbl">Arbeid<br>week (ATW)</div>
-    </div>
-    <div class="rest-block">
-      <div class="rest-val" id="r-pauze" style="color:var(--ok);">0 min</div>
-      <div class="rest-lbl">Pauze nog<br>nodig</div>
-    </div>
-    <div class="rest-block">
-      <div class="rest-val" id="r-rust" style="color:var(--ok);">11:00</div>
-      <div class="rest-lbl">Dagrust<br>vereist</div>
+    <div id="hist-lijst">
+      <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:20px 0;">Nog geen opgeslagen dagen.</div>
     </div>
   </div>
 </div>
 
-<!-- ══ RUSTTIJD ══ -->
-<div class="card" id="rust-card">
-  <div class="ct combo">🌙 Dagelijkse rust</div>
-  <div class="rust-block">
-    <div>
-      <div class="rust-lbl">Rusttijd na vorige dag</div>
-      <div class="rust-val" id="rust-uren" style="color:var(--ok);">— uur</div>
-    </div>
-    <div style="text-align:right;">
-      <div class="rust-lbl">Minimum vereist</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--muted);">11u (of 9u verkort)</div>
-    </div>
-  </div>
-  <div id="rust-alert"></div>
-
-  <!-- Weekinstellingen -->
-  <details style="margin-top:10px;">
-    <summary>⚙️ Weekinstellingen (vorige dagen)</summary>
-    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div>
-        <label>Rijtijd bus vorige dagen (u)</label>
-        <input type="number" id="prev-rij-bus" value="0" min="0" max="56" step="0.5" onchange="herbereken()">
-      </div>
-      <div>
-        <label>Arbeid vorige dagen (u)</label>
-        <input type="number" id="prev-werk" value="0" min="0" max="60" step="0.5" onchange="herbereken()">
-      </div>
-      <div>
-        <label>Eindtijd gisteren</label>
-        <input type="time" id="prev-eind" onchange="berekenRust()">
-      </div>
-      <div>
-        <label>Gem. 15 weken (u/week)</label>
-        <input type="number" id="prev-gem15" value="0" min="0" max="60" step="0.5" onchange="herbereken()">
-      </div>
-    </div>
-  </details>
-</div>
-
-<!-- ══ MELDINGEN ══ -->
-<div class="card">
-  <div class="ct combo">⚠️ Wettelijke meldingen</div>
-  <div class="alerts" id="alle-meldingen">
-    <div class="alert ok">Voer een dienst in om te controleren.</div>
-  </div>
-</div>
-
-<!-- ══ TABS VOOR LOGBOEK ══ -->
-<div class="tabs" style="margin-top:6px;">
-  <div class="tab act-t" id="tab-t" onclick="toonTab('t')">🚌 Bus<div class="tab-sub">Logboek</div></div>
-  <div class="tab" id="tab-k" onclick="toonTab('k')">🎓 CBR<div class="tab-sub">Logboek</div></div>
-  <div class="tab" id="tab-v" onclick="toonTab('v')">🚛 Vracht<div class="tab-sub">Logboek</div></div>
-  <div class="tab" id="tab-h" onclick="toonTab('h')">📅 Historie<div class="tab-sub">14 dagen</div></div>
-</div>
-
-<!-- Bus logboek -->
-<div class="panel active card" id="panel-t">
-  <div class="ct at">🚌 Buslogboek — <span id="bus-dag-lbl"></span></div>
-  <div class="log-list" id="log-bus"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
-  <button class="reset-btn" onclick="resetLog('bus')">🗑 Bus logboek wissen</button>
-</div>
-
-<!-- CBR logboek -->
-<div class="panel card" id="panel-k">
-  <div class="ct cbr">🎓 CBR logboek — <span id="cbr-dag-lbl"></span></div>
-
-  <!-- CBR standaarddag knop -->
-  <button class="btn btn-cbr" style="margin-bottom:10px;" onclick="vulCBRStandaard()">📋 Standaard CBR-dag (07:50–16:45)</button>
-
-  <div class="log-list" id="log-cbr"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
-  <button class="reset-btn" onclick="resetLog('cbr')">🗑 CBR logboek wissen</button>
-</div>
-
-<!-- Vracht logboek -->
-<div class="panel card" id="panel-v">
-  <div class="ct vr">🚛 Vrachtlogboek — <span id="vr-dag-lbl"></span></div>
-  <div class="log-list" id="log-vr"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
-  <button class="reset-btn" onclick="resetLog('vr')">🗑 Vracht logboek wissen</button>
-</div>
-
-<!-- Historie -->
-<div class="panel card" id="panel-h">
-  <div class="ct hist">📅 Overzicht opgeslagen dagen</div>
-  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-    <select id="hist-periode" onchange="renderHistorie()" style="width:auto;margin-bottom:0;flex:1;">
-      <option value="14">Laatste 14 dagen</option>
-      <option value="7">Laatste 7 dagen</option>
-      <option value="30">Laatste 30 dagen</option>
-      <option value="all">Alle dagen</option>
-    </select>
-    <button onclick="printHistorie()" class="btn btn-ghost" style="flex:1;">🖨️ Afdrukken</button>
-    <button onclick="exportCSV()" class="btn btn-ghost" style="flex:1;">📊 CSV</button>
-  </div>
-  <div id="hist-lijst"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:18px 0;">Nog geen opgeslagen dagen.</div></div>
-</div>
+<!-- ── Bottom nav ── -->
+<nav class="bnav">
+  <button class="bnav-btn active" id="nav-invoer" onclick="showView('invoer')">
+    <span class="icon">📋</span>Invoer
+  </button>
+  <button class="bnav-btn" id="nav-dag" onclick="showView('dag')">
+    <span class="icon">📊</span>Vandaag
+  </button>
+  <button class="bnav-btn hist" id="nav-hist" onclick="showView('hist')">
+    <span class="icon">📅</span>Historie
+  </button>
+</nav>
 
 <script>
-// ══ HULPFUNCTIES ═══════════════════════════════════════════
-const m2s = m => { const h=Math.floor(Math.abs(m)/60),mm=Math.abs(m)%60; return `${h}:${String(mm).padStart(2,'0')}`; };
+// ══ HULP ═══════════════════════════════════════════════════
+const m2s = m => {
+  const neg = m<0; m = Math.abs(m);
+  return `${neg?'-':''}${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`;
+};
 const s2m = s => { if(!s||!s.includes(':')) return 0; const[h,mn]=s.split(':').map(Number); return h*60+mn; };
 const nuT  = () => { const n=new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
 const vandaagISO = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; };
 const dagNamen = ['zo','ma','di','wo','do','vr','za'];
-function datumLabel(iso){ const d=new Date(iso+'T00:00:00'); return `${dagNamen[d.getDay()]} ${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}`; }
-function kleur(pct){ return pct>=100?'var(--danger)':pct>=85?'var(--warn)':'var(--ok)'; }
+const datumLabel = iso => { const d=new Date(iso+'T00:00:00'); return `${dagNamen[d.getDay()]} ${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}`; };
+const kleur = pct => pct>=100?'danger':pct>=85?'warn':'ok';
 
-function gauge(id, label, val, max){
-  const pct=Math.min((val/max)*100,100);
-  const k=kleur(pct);
-  const el=document.getElementById(id);
-  if(!el) return;
-  el.innerHTML=`<div class="gl"><span>${label}</span><span>${m2s(val)} / ${m2s(max)}</span></div>
-    <div class="gb"><div class="gf" style="width:${pct}%;background:${k}"></div></div>`;
+// ══ STATE ══════════════════════════════════════════════════
+let huidigeDatum = vandaagISO();
+let gekozenDisc  = null;
+
+// dagData: { datum, dienstNr, start, eind,
+//   rijBus, werkBus, rijVr, werkVr, werkCBR, pauze }
+let dagData = {};
+
+// ══ VIEWS & NAVIGATIE ══════════════════════════════════════
+function showView(v){
+  ['invoer','dag','hist'].forEach(id=>{
+    document.getElementById('view-'+id).classList.toggle('active', id===v);
+    const nb=document.getElementById('nav-'+id);
+    nb.className='bnav-btn'+(id===v?' active':'')+(id==='hist'?' hist':'');
+  });
+  if(v==='dag') herbereken();
+  if(v==='hist') renderHistorie();
+}
+
+// ══ DISCIPLINE KEUZE ═══════════════════════════════════════
+function kiesDisc(disc){
+  gekozenDisc = disc;
+  ['bus','cbr','vr'].forEach(d=>{
+    document.getElementById('btn-'+d).className='disc-btn'+(d===disc?' active-'+d:'');
+    document.getElementById('blok-'+d).style.display = d===disc?'block':'none';
+  });
 }
 
 // ══ LOCALSTORAGE ═══════════════════════════════════════════
-function laadOpgeslagen(){ try{ return JSON.parse(localStorage.getItem('atw_v2')||'{}'); } catch(e){ return {}; } }
-function slaAllesOp(d){ localStorage.setItem('atw_v2', JSON.stringify(d)); }
+function laadLS(){ try{ return JSON.parse(localStorage.getItem('atw_v3')||'{}'); }catch(e){ return {}; } }
+function slaLS(d){ localStorage.setItem('atw_v3', JSON.stringify(d)); }
 
-// ══ STATE ══════════════════════════════════════════════════
-// logboek entries: { s, e, type ('rij-bus'|'werk-bus'|'werk-cbr'|'rij-vr'|'werk-vr'|'pauze'), duur, id }
-let logBus=[], logCBR=[], logVr=[];
-let huidigeDatum = vandaagISO();
+function slaOpDag(){
+  const dagen=laadLS();
+  dagen[huidigeDatum]={...dagData, datum:huidigeDatum};
+  slaLS(dagen);
+}
 
-function syncDatum(iso){
-  huidigeDatum = iso;
-  document.getElementById('inp-datum').value = iso;
-  const lbl = datumLabel(iso);
-  ['bus-dag-lbl','cbr-dag-lbl','vr-dag-lbl'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.textContent=lbl;
+function laadDagUitLS(iso){
+  const dagen=laadLS();
+  if(dagen[iso]){ dagData={...dagen[iso]}; }
+  else { dagData={}; }
+}
+
+
+// ══ BUS: DIENST INLADEN ════════════════════════════════════
+function laadDienst(){
+  const nr=document.getElementById('inp-dienst').value.trim().replace(/\D/g,'');
+  const datum=document.getElementById('inp-datum').value||vandaagISO();
+  const el=document.getElementById('status-bus');
+  if(!nr){ el.textContent='⚠️ Vul een dienstnummer in.'; return; }
+  const d=dienstenDatabase[nr];
+  if(!d){ el.textContent=`❌ Dienst ${nr} niet gevonden.`; return; }
+
+  huidigeDatum=datum;
+  laadDagUitLS(datum); // bewaar evt. CBR/vracht data
+
+  // Bereken totalen uit blokken
+  let rijBus=0,werkBus=0,pauze=0;
+  d.blokken.forEach(b=>{
+    const dur = bereken_duur(b.s,b.e);
+    if(b.type==='rij') rijBus+=dur;
+    else if(b.type==='werk') werkBus+=dur;
+    else if(b.type==='pauze') pauze+=dur;
   });
-  document.getElementById('dash-datum-lbl').textContent = lbl;
+
+  dagData.dienstNr  = nr;
+  dagData.start     = d.start;
+  dagData.eind      = d.eind;
+  dagData.rijBus    = rijBus;
+  dagData.werkBus   = werkBus;
+  dagData.pauze     = (dagData.pauze||0) + pauze;
+  dagData.discBus   = true;
+
+  slaOpDag();
+  el.textContent=`✓ Dienst ${nr} ingeladen: ${d.start}–${d.eind}`;
+  showView('dag');
 }
 
-function laadDag(){
-  const dagen = laadOpgeslagen();
-  const d = dagen[huidigeDatum];
-  if(d){ logBus=d.bus||[]; logCBR=d.cbr||[]; logVr=d.vr||[]; }
-  else { logBus=[]; logCBR=[]; logVr=[]; }
-  renderAlles();
+// ══ CBR INLADEN ════════════════════════════════════════════
+function laadCBRStandaard(){
+  const datum=document.getElementById('inp-datum').value||vandaagISO();
+  huidigeDatum=datum;
+  laadDagUitLS(datum);
+
+  dagData.werkCBR = s2m('16:45')-s2m('07:50')-30; // 8u25
+  dagData.pauze   = (dagData.pauze||0)+30;
+  if(!dagData.start) dagData.start='07:50';
+  if(!dagData.eind || s2m(dagData.eind)<s2m('16:45')) dagData.eind='16:45';
+  dagData.discCBR=true;
+
+  slaOpDag();
+  document.getElementById('status-cbr').textContent='✓ Standaard CBR-dag ingeladen (07:50–16:45)';
+  showView('dag');
 }
 
-function slaOpDag(toonFeedback=false){
-  const datum = huidigeDatum;
-  const dagen = laadOpgeslagen();
-  const totalen = berekenTotalen();
-  dagen[datum] = { datum, bus:logBus, cbr:logCBR, vr:logVr, ...totalen };
-  slaAllesOp(dagen);
-  if(toonFeedback){
-    const btn = event.target;
-    const orig = btn.textContent;
-    btn.textContent='✓ Opgeslagen!';
-    setTimeout(()=>btn.textContent=orig, 1600);
+function laadCBRHandmatig(){
+  const datum=document.getElementById('inp-datum').value||vandaagISO();
+  const s=document.getElementById('cbr-start').value;
+  const e=document.getElementById('cbr-eind').value;
+  const p=parseInt(document.getElementById('cbr-pauze').value)||0;
+  if(!s||!e){ document.getElementById('status-cbr').textContent='⚠️ Vul start en eindtijd in.'; return; }
+
+  huidigeDatum=datum;
+  laadDagUitLS(datum);
+
+  const netto=bereken_duur(s,e)-p;
+  dagData.werkCBR=(dagData.werkCBR||0)+Math.max(0,netto);
+  dagData.pauze  =(dagData.pauze||0)+p;
+  if(!dagData.start) dagData.start=s;
+  if(!dagData.eind||s2m(e)>s2m(dagData.eind)) dagData.eind=e;
+  dagData.discCBR=true;
+
+  slaOpDag();
+  document.getElementById('status-cbr').textContent=`✓ CBR dag ingeladen: ${s}–${e}`;
+  showView('dag');
+}
+
+// ══ VRACHT INLADEN ═════════════════════════════════════════
+function laadVrachtHandmatig(){
+  const datum=document.getElementById('inp-datum').value||vandaagISO();
+  const s  =document.getElementById('vr-start').value;
+  const e  =document.getElementById('vr-eind').value;
+  const rij=document.getElementById('vr-rij').value;
+  const p  =parseInt(document.getElementById('vr-pauze').value)||0;
+  if(!s||!e){ document.getElementById('status-vr').textContent='⚠️ Vul start en eindtijd in.'; return; }
+
+  huidigeDatum=datum;
+  laadDagUitLS(datum);
+
+  const totaalDuur=bereken_duur(s,e);
+  const rijMin=rij?s2m(rij):0;
+  const werkMin=Math.max(0,totaalDuur-rijMin-p);
+
+  dagData.rijVr  =(dagData.rijVr||0)+rijMin;
+  dagData.werkVr =(dagData.werkVr||0)+werkMin;
+  dagData.pauze  =(dagData.pauze||0)+p;
+  if(!dagData.start) dagData.start=s;
+  if(!dagData.eind||s2m(e)>s2m(dagData.eind)) dagData.eind=e;
+  dagData.discVr=true;
+
+  slaOpDag();
+  document.getElementById('status-vr').textContent=`✓ Vrachtdag ingeladen: ${s}–${e}`;
+  showView('dag');
+}
+
+// ══ HULP: duur berekenen over middernacht heen ═════════════
+function bereken_duur(s,e){
+  let sm=s2m(s),em=s2m(e);
+  if(em<=sm) em+=1440;
+  return em-sm;
+}
+
+// ══ DAGOVERZICHT RENDEREN ══════════════════════════════════
+function renderDag(){
+  const d=dagData;
+  const rijBus  = d.rijBus  ||0;
+  const werkBus = d.werkBus ||0;
+  const werkCBR = d.werkCBR ||0;
+  const rijVr   = d.rijVr   ||0;
+  const werkVr  = d.werkVr  ||0;
+  const pauze   = d.pauze   ||0;
+  const rijTot  = rijBus+rijVr;
+  const werkTot = werkBus+werkCBR+werkVr;
+  const dagTot  = rijTot+werkTot;
+
+  // Datum en labels
+  document.getElementById('dag-datum-lbl').textContent = datumLabel(huidigeDatum);
+  document.getElementById('dag-dienst-lbl').textContent = d.dienstNr ? `Dienst ${d.dienstNr}` : '';
+
+  // Discipline tags
+  const tags=[];
+  if(d.discBus||rijBus||werkBus) tags.push('<span class="disc-tag bus">🚌 Bus</span>');
+  if(d.discCBR||werkCBR) tags.push('<span class="disc-tag cbr">🎓 CBR</span>');
+  if(d.discVr||rijVr||werkVr) tags.push('<span class="disc-tag vr">🚛 Vracht</span>');
+  document.getElementById('disc-tags').innerHTML=tags.join('');
+
+  // Tijden
+  document.getElementById('dag-start').textContent     = d.start||'—';
+  document.getElementById('dag-eind').textContent      = d.eind ||'—';
+  if(d.start&&d.eind){
+    document.getElementById('dag-aanwezig').textContent = m2s(bereken_duur(d.start,d.eind));
+  } else {
+    document.getElementById('dag-aanwezig').textContent = '—';
+  }
+
+  // Totalen
+  document.getElementById('tot-rij').textContent      = m2s(rijBus);
+  document.getElementById('tot-cbr').textContent      = m2s(werkCBR);
+  document.getElementById('tot-vr').textContent       = m2s(rijVr);
+  document.getElementById('tot-werk-bus').textContent  = m2s(werkBus);
+  document.getElementById('tot-pauze').textContent    = m2s(pauze);
+  document.getElementById('tot-dag').textContent      = m2s(dagTot);
+
+  return {rijBus,werkBus,werkCBR,rijVr,werkVr,pauze,rijTot,werkTot,dagTot};
+}
+
+// ══ HERBEREKEN + DASHBOARD ═════════════════════════════════
+function herbereken(){
+  const t=renderDag();
+
+  const prevRij  = Math.round((parseFloat(document.getElementById('prev-rij').value)||0)*60);
+  const prevWerk = Math.round((parseFloat(document.getElementById('prev-werk').value)||0)*60);
+
+  const weekRij  = prevRij  + t.rijBus;
+  const weekWerk = prevWerk + t.dagTot;
+
+  // Aftellers
+  const aftRijDag  = Math.max(0, 9*60 - t.rijBus);
+  const aftRijWeek = Math.max(0, 56*60 - weekRij);
+  const aftWerkDag = Math.max(0, 12*60 - t.dagTot);
+  const aftWerkWeek= Math.max(0, 60*60 - weekWerk);
+
+  const setAft=(id,val,warn,limit)=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.textContent=m2s(val);
+    el.className='aft-val '+(val<=0?'danger':val<warn?'warn':'ok');
+  };
+  setAft('aft-rij-dag',  aftRijDag,   60, 9*60);
+  setAft('aft-rij-week', aftRijWeek, 120, 56*60);
+  setAft('aft-werk-dag', aftWerkDag,  60, 12*60);
+  setAft('aft-werk-week',aftWerkWeek,120, 60*60);
+
+  // Gauges
+  gauge('gauge-rij-dag',   'Rijtijd dag (bus)',    t.rijBus,  9*60);
+  gauge('gauge-rij-week',  'Rijtijd week (bus)',   weekRij,  56*60);
+  gauge('gauge-werk-dag',  'Arbeid dag (ATW)',     t.dagTot, 12*60);
+  gauge('gauge-werk-week', 'Arbeid week (ATW)',    weekWerk, 60*60);
+
+  // Rust
+  berekenRust(t);
+
+  // Meldingen
+  bouwMeldingen(t, weekRij, weekWerk);
+}
+
+function gauge(id, lbl, val, max){
+  const pct=Math.min((val/max)*100,100);
+  const k={'ok':'var(--ok)','warn':'var(--warn)','danger':'var(--danger)'}[kleur(pct)];
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.innerHTML=`<div class="gauge"><div class="gauge-hdr"><span>${lbl}</span><span>${m2s(val)} / ${m2s(max)}</span></div>
+    <div class="gauge-bar"><div class="gauge-fill" style="width:${pct}%;background:${k};"></div></div></div>`;
+}
+
+// ══ NACHTRUST ══════════════════════════════════════════════
+function berekenRust(){
+  const prevEind=document.getElementById('prev-eind').value;
+  const startVandaag=dagData.start;
+  const el=document.getElementById('rust-val');
+  const st=document.getElementById('rust-status');
+
+  if(!prevEind||!startVandaag){ el.textContent='—'; st.textContent='—'; st.className=''; return; }
+
+  let rust=s2m(startVandaag)-s2m(prevEind);
+  if(rust<0) rust+=1440;
+
+  el.textContent=m2s(rust)+' uur';
+  if(rust<9*60){
+    el.className='rust-val danger'; st.textContent='⛔ Te kort (<9u)'; st.className='danger';
+  } else if(rust<11*60){
+    el.className='rust-val warn'; st.textContent='⚠️ Verkort (9–11u)'; st.className='warn';
+  } else {
+    el.className='rust-val ok'; st.textContent='✓ Voldoende (≥11u)'; st.className='ok';
   }
 }
 
-// ══ TABS ═══════════════════════════════════════════════════
-function toonTab(p){
-  ['t','k','v','h'].forEach(id=>{
-    document.getElementById('panel-'+id).classList.toggle('active', p===id);
-    const tab=document.getElementById('tab-'+id);
-    tab.className='tab'+(p===id?` act-${id}`:'');
-  });
-  if(p==='h') renderHistorie();
+// ══ MELDINGEN ══════════════════════════════════════════════
+function bouwMeldingen(t, weekRij, weekWerk){
+  const msgs=[];
+
+  if(!t.dagTot){
+    msgs.push({c:'ok',m:'Voer een dienst in om te controleren.'});
+  } else {
+    if(t.rijBus>9*60)      msgs.push({c:'danger',m:`⛔ Dagrijtijd overschreden: ${m2s(t.rijBus)} (max 9:00)`});
+    else if(t.rijBus>8*60) msgs.push({c:'warn',  m:`⚠️ Rijtijd ${m2s(t.rijBus)}: verlengd naar 10u max 2× p/week`});
+    if(weekRij>56*60)      msgs.push({c:'danger',m:`⛔ Weekrijtijd overschreden: ${m2s(weekRij)} (max 56:00)`});
+    else if(weekRij>50*60) msgs.push({c:'warn',  m:`⚠️ Weekrijtijd nadert: ${m2s(weekRij)} / 56:00`});
+
+    if(t.dagTot>12*60)     msgs.push({c:'danger',m:`⛔ Dagarbeid ATW overschreden: ${m2s(t.dagTot)} (max 12:00)`});
+    else if(t.dagTot>10*60)msgs.push({c:'warn',  m:`⚠️ Dagarbeid nadert: ${m2s(t.dagTot)} / 12:00`});
+    if(weekWerk>60*60)     msgs.push({c:'danger',m:`⛔ Weekarbeid ATW overschreden: ${m2s(weekWerk)} (max 60:00)`});
+    else if(weekWerk>54*60)msgs.push({c:'warn',  m:`⚠️ Weekarbeid nadert: ${m2s(weekWerk)} / 60:00`});
+
+    // Pauze EU 561 (bus)
+    if(t.rijBus>4.5*60 && t.pauze<45)
+      msgs.push({c:'warn',m:`⚠️ EU 561: bij >4,5u rijtijd 45 min pauze nodig (nu: ${m2s(t.pauze)})`});
+    // Pauze ATW
+    if(t.dagTot>5.5*60 && t.pauze<30)
+      msgs.push({c:'warn',m:`⚠️ ATW: bij >5,5u arbeid 30 min pauze nodig (nu: ${m2s(t.pauze)})`});
+
+    if((t.werkCBR||t.rijVr||t.werkVr) && (t.rijBus||t.werkBus))
+      msgs.push({c:'info',m:`ℹ️ Gecombineerd: Bus + ${t.werkCBR?'CBR':''}${t.rijVr?'/Vracht':''} — arbeid telt cumulatief mee voor ATW`});
+
+    if(!msgs.length) msgs.push({c:'ok',m:'✓ Alle wettelijke limieten OK.'});
+  }
+
+  document.getElementById('meldingen-wrap').innerHTML =
+    msgs.map(x=>`<div class="alert ${x.c}">${x.m}</div>`).join('');
 }
 
-// ══ DIENST DATABASE ════════════════════════════════════════
+// ══ RESET DAG ══════════════════════════════════════════════
+function resetDag(){
+  if(!confirm('Dag wissen?')) return;
+  dagData={};
+  const dagen=laadLS(); delete dagen[huidigeDatum]; slaLS(dagen);
+  herbereken();
+}
+
+// ══ HISTORIE ═══════════════════════════════════════════════
+function renderHistorie(){
+  const pv=document.getElementById('hist-periode').value;
+  const dagen=laadLS();
+  let keys=Object.keys(dagen).sort().reverse();
+  if(pv!=='all'){
+    const g=new Date(); g.setDate(g.getDate()-parseInt(pv));
+    const gISO=g.toISOString().slice(0,10);
+    keys=keys.filter(k=>k>=gISO);
+  }
+  const el=document.getElementById('hist-lijst');
+  if(!keys.length){
+    el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.72rem;text-align:center;padding:20px 0;">Geen opgeslagen dagen.</div>';
+    return;
+  }
+  el.innerHTML=keys.map(iso=>{
+    const d=dagen[iso];
+    const rij=(d.rijBus||0)+(d.rijVr||0);
+    const werk=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
+    const tot=rij+werk;
+    const tags=[];
+    if(d.discBus||d.rijBus||d.werkBus) tags.push('<span class="disc-tag bus" style="font-size:0.55rem;">🚌</span>');
+    if(d.discCBR||d.werkCBR) tags.push('<span class="disc-tag cbr" style="font-size:0.55rem;">🎓</span>');
+    if(d.discVr||d.rijVr||d.werkVr) tags.push('<span class="disc-tag vr" style="font-size:0.55rem;">🚛</span>');
+    return `<div class="hist-dag">
+      <div class="hist-kop">
+        <div>
+          <span class="hist-datum">${datumLabel(iso)}</span>
+          <span style="margin-left:6px;">${tags.join('')}</span>
+        </div>
+        <div class="hist-acties">
+          <button onclick="laadHistDag('${iso}')">📂</button>
+          <button onclick="verwijderDag('${iso}')">🗑</button>
+        </div>
+      </div>
+      <div class="hist-rij">
+        <div class="hist-cel"><div class="hist-val" style="color:var(--bus);">${m2s(d.rijBus||0)}</div><div class="hist-lbl">Rij bus</div></div>
+        <div class="hist-cel"><div class="hist-val" style="color:var(--cbr);">${m2s(d.werkCBR||0)}</div><div class="hist-lbl">CBR</div></div>
+        <div class="hist-cel"><div class="hist-val" style="color:var(--vr);">${m2s((d.rijVr||0)+(d.werkVr||0))}</div><div class="hist-lbl">Vracht</div></div>
+        <div class="hist-cel"><div class="hist-val" style="color:var(--info);">${m2s(tot)}</div><div class="hist-lbl">Totaal</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function laadHistDag(iso){
+  huidigeDatum=iso;
+  document.getElementById('inp-datum').value=iso;
+  laadDagUitLS(iso);
+  showView('dag');
+}
+function verwijderDag(iso){
+  if(!confirm(`${datumLabel(iso)} verwijderen?`)) return;
+  const dagen=laadLS(); delete dagen[iso]; slaLS(dagen); renderHistorie();
+}
+
+function printHistorie(){
+  const pv=document.getElementById('hist-periode').value;
+  const dagen=laadLS();
+  let keys=Object.keys(dagen).sort().reverse();
+  if(pv!=='all'){
+    const g=new Date(); g.setDate(g.getDate()-parseInt(pv));
+    keys=keys.filter(k=>k>=g.toISOString().slice(0,10));
+  }
+  if(!keys.length){alert('Geen gegevens.');return;}
+  let totR=0,totW=0;
+  const rows=keys.map(iso=>{
+    const d=dagen[iso];
+    const r=(d.rijBus||0)+(d.rijVr||0);
+    const w=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
+    totR+=r; totW+=w;
+    return `<tr><td>${datumLabel(iso)}</td><td>${d.dienstNr||'—'}</td><td>${m2s(d.rijBus||0)}</td><td>${m2s(d.werkCBR||0)}</td><td>${m2s((d.rijVr||0)+(d.werkVr||0))}</td><td><b>${m2s(r+w)}</b></td></tr>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"><title>Uitdraai</title>
+<style>body{font-family:Arial,sans-serif;font-size:10pt;margin:15mm;}table{width:100%;border-collapse:collapse;}
+th{background:#f0f0f0;padding:5px 7px;border-bottom:2px solid #ccc;text-align:left;font-size:8pt;}
+td{padding:4px 7px;border-bottom:1px solid #e0e0e0;}tfoot td{font-weight:bold;border-top:2px solid #999;}</style>
+</head><body><h2>Arbeidstijden Uitdraai</h2>
+<p style="font-size:9pt;color:#666;">Afgedrukt: ${new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+<table><thead><tr><th>Datum</th><th>Dienst</th><th>🚌 Rijtijd</th><th>🎓 CBR</th><th>🚛 Vracht</th><th>Totaal</th></tr></thead>
+<tbody>${rows}</tbody><tfoot><tr><td colspan="2">Totaal (${keys.length} dagen)</td><td>${m2s(totR)}</td><td></td><td></td><td>${m2s(totR+totW)}</td></tr></tfoot>
+</table><script>window.onload=()=>window.print();<\/script></body></html>`;
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+function exportCSV(){
+  const pv=document.getElementById('hist-periode').value;
+  const dagen=laadLS();
+  let keys=Object.keys(dagen).sort();
+  if(pv!=='all'){
+    const g=new Date(); g.setDate(g.getDate()-parseInt(pv));
+    keys=keys.filter(k=>k>=g.toISOString().slice(0,10));
+  }
+  if(!keys.length){alert('Geen gegevens.');return;}
+  const h='Datum;Dag;Dienst;Starttijd;Eindtijd;Rijtijd bus (min);Arbeid bus (min);CBR (min);Rijtijd vracht (min);Arbeid vracht (min);Pauze (min);Totaal (min)\n';
+  const rows=keys.map(iso=>{
+    const d=dagen[iso];
+    const dag=dagNamen[new Date(iso+'T00:00:00').getDay()];
+    const tot=(d.rijBus||0)+(d.werkBus||0)+(d.werkCBR||0)+(d.rijVr||0)+(d.werkVr||0);
+    return `${iso};${dag};${d.dienstNr||''};${d.start||''};${d.eind||''};${d.rijBus||0};${d.werkBus||0};${d.werkCBR||0};${d.rijVr||0};${d.werkVr||0};${d.pauze||0};${tot}`;
+  }).join('\n');
+  const blob=new Blob(['\uFEFF'+h+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`arbeidstijden_${keys[0]}_${keys[keys.length-1]}.csv`; a.click();
+}
+
 const dienstenDatabase = {
   '4701': { start:'07:31', eind:'16:16', blokken:[
     {s:'07:31',e:'07:36',type:'werk',label:'Opstaptijd'},
@@ -1423,400 +1818,14 @@ const dienstenDatabase = {
   ]},
 };
 
-// ══ DIENST INLADEN ═════════════════════════════════════════
-function laadDienst(){
-  const nr = document.getElementById('inp-dienst').value.trim().replace(/\D/g,'');
-  const datum = document.getElementById('inp-datum').value || vandaagISO();
-  const status = document.getElementById('dienst-status');
-
-  if(!nr){ status.textContent='⚠️ Vul een dienstnummer in.'; return; }
-  const dienst = dienstenDatabase[nr];
-  if(!dienst){ status.textContent=`❌ Dienst ${nr} niet gevonden.`; return; }
-
-  syncDatum(datum);
-  const dagen = laadOpgeslagen();
-  if(dagen[datum]){ logBus=dagen[datum].bus||[]; logCBR=dagen[datum].cbr||[]; logVr=dagen[datum].vr||[]; }
-  else { logBus=[]; logCBR=[]; logVr=[]; }
-
-  // Voeg blokken toe aan buslogboek — map type naar nieuw systeem
-  dienst.blokken.forEach((b,i) => {
-    const sm=s2m(b.s), em0=s2m(b.e);
-    let em = em0 <= sm ? em0+1440 : em0;
-    const duur = em-sm;
-    if(duur<=0) return;
-    const type = b.type==='rij'?'rij-bus': b.type==='pauze'?'pauze':'werk-bus';
-    logBus.push({ s:b.s, e:b.e, type, duur, label:b.label, id:Date.now()+i });
-  });
-
-  slaOpDag();
-  renderAlles();
-  status.textContent=`✓ Dienst ${nr} ingeladen: ${dienst.start}–${dienst.eind}`;
-  toonTab('t');
-}
-
-// ══ HANDMATIGE TOEVOEGING ══════════════════════════════════
-function voegHandmatigToe(){
-  const s = document.getElementById('man-start').value;
-  const e = document.getElementById('man-eind').value;
-  const type = document.getElementById('man-type').value;
-  if(!s||!e){ return; }
-  let sm=s2m(s), em=s2m(e);
-  if(em<=sm) em+=1440;
-  const duur=em-sm;
-  if(duur<=0) return;
-  const datum = document.getElementById('inp-datum').value || vandaagISO();
-  syncDatum(datum);
-  const dagen = laadOpgeslagen();
-  if(dagen[datum]){ logBus=dagen[datum].bus||[]; logCBR=dagen[datum].cbr||[]; logVr=dagen[datum].vr||[]; }
-
-  const entry = { s, e, type, duur, label: typeLbl(type), id: Date.now() };
-  if(type.includes('cbr')) logCBR.push(entry);
-  else if(type.includes('vr')) logVr.push(entry);
-  else logBus.push(entry);
-
-  slaOpDag();
-  renderAlles();
-}
-
-function typeLbl(t){
-  const m={'rij-bus':'Rijtijd bus','werk-bus':'Arbeid bus','werk-cbr':'CBR examen','rij-vr':'Rijtijd vracht','werk-vr':'Arbeid vracht','pauze':'Pauze'};
-  return m[t]||t;
-}
-
-// ══ CBR STANDAARDDAG ═══════════════════════════════════════
-function vulCBRStandaard(){
-  if(logCBR.length>0 && !confirm('CBR-logboek heeft al items. Overschrijven?')) return;
-  const datum = document.getElementById('inp-datum').value || vandaagISO();
-  syncDatum(datum);
-  logCBR=[];
-  const blokken=[
-    {s:'07:50',e:'12:35',type:'werk-cbr',label:'CBR examineren'},
-    {s:'12:35',e:'13:05',type:'pauze',label:'Pauze'},
-    {s:'13:05',e:'16:45',type:'werk-cbr',label:'CBR examineren'},
-  ];
-  blokken.forEach((b,i)=>{ const duur=s2m(b.e)-s2m(b.s); logCBR.push({...b,duur,id:Date.now()+i}); });
-  slaOpDag();
-  renderAlles();
-}
-
-// ══ LOG RENDER ═════════════════════════════════════════════
-const typeKleur = {'rij-bus':'var(--at)','werk-bus':'#f0a50080','werk-cbr':'var(--cbr)','rij-vr':'var(--vr)','werk-vr':'#a855f780','pauze':'var(--ok)'};
-
-function renderLog(lijst, elId){
-  const el=document.getElementById(elId);
-  if(!el) return;
-  if(!lijst.length){ el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div>'; return; }
-  el.innerHTML=lijst.map((r,i)=>`
-    <div class="log-item">
-      <div>
-        <div class="li-lbl" style="color:${typeKleur[r.type]||'var(--text)'};">${r.label||typeLbl(r.type)}</div>
-        <div class="li-sub">${r.s} → ${r.e} &nbsp;(${m2s(r.duur)})</div>
-      </div>
-      <button onclick="verwijderEntry('${elId}',${i})">✕</button>
-    </div>`).join('');
-}
-
-function verwijderEntry(elId, idx){
-  if(elId==='log-bus') logBus.splice(idx,1);
-  else if(elId==='log-cbr') logCBR.splice(idx,1);
-  else if(elId==='log-vr') logVr.splice(idx,1);
-  slaOpDag();
-  renderAlles();
-}
-
-function resetLog(disc){
-  if(!confirm(`${disc.toUpperCase()} logboek wissen?`)) return;
-  if(disc==='bus') logBus=[];
-  else if(disc==='cbr') logCBR=[];
-  else if(disc==='vr') logVr=[];
-  slaOpDag();
-  renderAlles();
-}
-
-// ══ BEREKENINGEN ═══════════════════════════════════════════
-function berekenTotalen(){
-  let rijBus=0, werkBus=0, werkCBR=0, rijVr=0, werkVr=0, pauze=0;
-  logBus.forEach(r=>{
-    if(r.type==='rij-bus') rijBus+=r.duur;
-    else if(r.type==='werk-bus') werkBus+=r.duur;
-    else if(r.type==='pauze') pauze+=r.duur;
-  });
-  logCBR.forEach(r=>{
-    if(r.type==='werk-cbr') werkCBR+=r.duur;
-    else if(r.type==='pauze') pauze+=r.duur;
-  });
-  logVr.forEach(r=>{
-    if(r.type==='rij-vr') rijVr+=r.duur;
-    else if(r.type==='werk-vr') werkVr+=r.duur;
-    else if(r.type==='pauze') pauze+=r.duur;
-  });
-  const rijTot = rijBus+rijVr;
-  const werkTot = werkBus+werkCBR+werkVr;
-  const dagTot = rijTot+werkTot;
-  return {rijBus,werkBus,werkCBR,rijVr,werkVr,pauze,rijTot,werkTot,dagTot};
-}
-
-function herbereken(){
-  const t = berekenTotalen();
-
-  // Vorige dagen
-  const prevRijBus = Math.round((parseFloat(document.getElementById('prev-rij-bus').value)||0)*60);
-  const prevWerk   = Math.round((parseFloat(document.getElementById('prev-werk').value)||0)*60);
-  const prevGem15  = Math.round((parseFloat(document.getElementById('prev-gem15').value)||0)*60);
-
-  const weekRijBus = prevRijBus + t.rijBus;
-  const weekWerk   = prevWerk   + t.dagTot;
-  const gem16      = Math.round((prevGem15*15 + weekWerk)/16);
-
-  // ── Dashboard invullen ──
-  document.getElementById('d-rij-bus').textContent  = m2s(t.rijBus);
-  document.getElementById('d-werk-bus').textContent = m2s(t.werkBus);
-  document.getElementById('d-werk-cbr').textContent = m2s(t.werkCBR);
-  document.getElementById('d-rij-vr').textContent   = m2s(t.rijVr);
-  document.getElementById('d-werk-vr').textContent  = m2s(t.werkVr);
-  document.getElementById('d-pauze').textContent    = m2s(t.pauze);
-  document.getElementById('d-rij-tot').textContent  = m2s(t.rijTot);
-  document.getElementById('d-werk-tot').textContent = m2s(t.werkTot);
-  document.getElementById('d-dag-tot').textContent  = m2s(t.dagTot);
-
-  // Kleuren gecombineerde totalen
-  ['d-rij-tot','d-werk-tot','d-dag-tot'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.className='ds-val combo';
-  });
-
-  // ── Gauges ──
-  // Rijtijdenwet: max 9u dag, 56u week bus
-  const maxRijDag  = 9*60;
-  const maxRijWeek = 56*60;
-  // ATW: max 12u dag, 60u week
-  const maxWerkDag  = 12*60;
-  const maxWerkWeek = 60*60;
-
-  gauge('g-dag-rij',   `Rijtijd dag (bus)`, t.rijBus, maxRijDag);
-  gauge('g-week-rij',  `Rijtijd week (bus)`, weekRijBus, maxRijWeek);
-  gauge('g-dag-werk',  `Dagarbeid (ATW)`, t.dagTot, maxWerkDag);
-  gauge('g-week-werk', `Weekarbeid (ATW)`, weekWerk, maxWerkWeek);
-
-  // ── Resterende tellers ──
-  const restRijDag  = Math.max(0, maxRijDag  - t.rijBus);
-  const restRijWeek = Math.max(0, maxRijWeek - weekRijBus);
-  const restWerkDag = Math.max(0, maxWerkDag - t.dagTot);
-  const restWerkWeek= Math.max(0, maxWerkWeek- weekWerk);
-
-  // Pauze: EU 561 — 45 min per 4,5u rijtijd
-  const pauzeNodig = t.rijBus>0 ? Math.max(0, Math.ceil(t.rijBus/270)*45 - t.pauze) : 0;
-
-  const setRest = (id, val, warnBelow) => {
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.textContent = m2s(val);
-    el.className = `rest-val ${val<=0?'danger':val<warnBelow?'warn':'ok'}`;
-  };
-  setRest('r-rij-dag',   restRijDag,   60);
-  setRest('r-rij-week',  restRijWeek,  120);
-  setRest('r-werk-dag',  restWerkDag,  60);
-  setRest('r-werk-week', restWerkWeek, 120);
-
-  const rPauze=document.getElementById('r-pauze');
-  if(rPauze){
-    rPauze.textContent=`${pauzeNodig} min`;
-    rPauze.className=`rest-val ${pauzeNodig>0?'warn':'ok'}`;
-  }
-
-  berekenRust();
-  bouwMeldingen(t, weekRijBus, weekWerk, gem16, pauzeNodig, prevGem15);
-}
-
-// ══ RUSTTIJD ═══════════════════════════════════════════════
-function berekenRust(){
-  const prevEind = document.getElementById('prev-eind').value;
-
-  // Bepaal starttijd vandaag uit logboek
-  let allEntries = [...logBus,...logCBR,...logVr].filter(r=>r.s);
-  allEntries.sort((a,b)=>s2m(a.s)-s2m(b.s));
-  const startVandaag = allEntries.length ? allEntries[0].s : null;
-
-  const rustEl = document.getElementById('rust-uren');
-  const alertEl = document.getElementById('rust-alert');
-  const rRust = document.getElementById('r-rust');
-
-  if(!prevEind || !startVandaag){
-    rustEl.textContent='—';
-    rustEl.style.color='var(--muted)';
-    alertEl.innerHTML='';
-    if(rRust){ rRust.textContent='11:00'; rRust.className='rest-val ok'; }
-    return;
-  }
-
-  // Rust in minuten
-  let rust = s2m(startVandaag) - s2m(prevEind);
-  if(rust < 0) rust += 1440; // volgende dag
-  const rustH = m2s(rust);
-
-  rustEl.textContent = rustH + ' uur';
-
-  let alertHtml='';
-  if(rust < 9*60){
-    rustEl.style.color='var(--danger)';
-    alertHtml=`<div class="alert danger">⛔ Dagrust KRITIEK: slechts ${rustH} rust! Minimum is 9u (verkort) of 11u normaal.</div>`;
-    if(rRust){ rRust.textContent=m2s(9*60-rust)+' te kort'; rRust.className='rest-val danger'; }
-  } else if(rust < 11*60){
-    rustEl.style.color='var(--warn)';
-    alertHtml=`<div class="alert warn">⚠️ Verkorte dagrust: ${rustH}. Toegestaan (min. 9u), maar max 3× per week. Normale rust is 11u.</div>`;
-    if(rRust){ rRust.textContent=rustH; rRust.className='rest-val warn'; }
-  } else {
-    rustEl.style.color='var(--ok)';
-    alertHtml=`<div class="alert ok">✓ Dagrust voldoende: ${rustH} (≥ 11u).</div>`;
-    if(rRust){ rRust.textContent=rustH; rRust.className='rest-val ok'; }
-  }
-  alertEl.innerHTML=alertHtml;
-}
-
-// ══ MELDINGEN ══════════════════════════════════════════════
-function bouwMeldingen(t, weekRijBus, weekWerk, gem16, pauzeNodig, prevGem15){
-  const msgs=[];
-
-  if(!logBus.length && !logCBR.length && !logVr.length){
-    msgs.push({t:'ok',m:'Voer een dienst in om te controleren.'});
-  } else {
-    // Rijtijdenwet
-    if(t.rijBus > 9*60)      msgs.push({t:'danger',m:`⛔ Dagrijtijd overschreden! ${m2s(t.rijBus)} > 9:00`});
-    else if(t.rijBus > 8*60) msgs.push({t:'warn',  m:`⚠️ Let op: dagrijtijd ${m2s(t.rijBus)}. Verlengd naar 10u mag max 2× p/w.`});
-    if(weekRijBus > 56*60)   msgs.push({t:'danger',m:`⛔ Weekrijtijd bus overschreden! ${m2s(weekRijBus)} > 56:00`});
-    else if(weekRijBus > 50*60) msgs.push({t:'warn',m:`⚠️ Weekrijtijd bus nadert limiet: ${m2s(weekRijBus)} / 56:00`});
-
-    // ATW
-    if(t.dagTot > 12*60)     msgs.push({t:'danger',m:`⛔ Dagarbeid ATW overschreden! ${m2s(t.dagTot)} > 12:00`});
-    else if(t.dagTot > 10*60)msgs.push({t:'warn',  m:`⚠️ Dagarbeid nadert limiet: ${m2s(t.dagTot)} / 12:00`});
-    if(weekWerk > 60*60)     msgs.push({t:'danger',m:`⛔ Weekarbeid ATW overschreden! ${m2s(weekWerk)} > 60:00`});
-    else if(weekWerk > 54*60)msgs.push({t:'warn',  m:`⚠️ Weekarbeid nadert limiet: ${m2s(weekWerk)} / 60:00`});
-
-    // Gem 16 weken
-    if(gem16 > 48*60)        msgs.push({t:'danger',m:`⛔ Gemiddelde 16-weken ATW overschreden! ${m2s(gem16)} > 48:00/week`});
-    else if(gem16 > 45*60)   msgs.push({t:'warn',  m:`⚠️ Gemiddelde 16-weken ATW nadert: ${m2s(gem16)} / 48:00`});
-
-    // Pauze
-    if(pauzeNodig > 0)       msgs.push({t:'warn',  m:`⚠️ Nog ${pauzeNodig} min pauze nodig op basis van rijtijd (EU 561: 45 min per 4,5u).`});
-    else if(t.rijBus>0)      msgs.push({t:'ok',    m:`✓ Pauzeplicht bus voldaan (${m2s(t.pauze)} pauze).`});
-
-    // Pauze ATW bus+cbr
-    if(t.dagTot > 5.5*60 && t.pauze < 30) msgs.push({t:'warn',m:`⚠️ Bij >5,5u arbeid: 30 min pauze verplicht (ATW). Nu: ${t.pauze} min.`});
-
-    // Alles ok?
-    if(msgs.length===0) msgs.push({t:'ok',m:'✓ Alle limieten binnen de wettelijke normen.'});
-
-    // Info combinatie
-    if((logBus.length||logVr.length) && logCBR.length)
-      msgs.push({t:'info',m:`ℹ️ Gecombineerde dienst: Bus/Vracht + CBR. Alle arbeid telt mee voor ATW-totaal.`});
-  }
-
-  document.getElementById('alle-meldingen').innerHTML = msgs.map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('');
-}
-
-// ══ RENDER ALLES ═══════════════════════════════════════════
-function renderAlles(){
-  renderLog(logBus, 'log-bus');
-  renderLog(logCBR, 'log-cbr');
-  renderLog(logVr,  'log-vr');
-  herbereken();
-}
-
-// ══ HISTORIE ═══════════════════════════════════════════════
-function renderHistorie(){
-  const periodeVal = document.getElementById('hist-periode').value;
-  const dagen = laadOpgeslagen();
-  let keys = Object.keys(dagen).sort().reverse();
-  if(periodeVal!=='all'){
-    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
-    const grensISO=grens.toISOString().slice(0,10);
-    keys=keys.filter(k=>k>=grensISO);
-  }
-  const el=document.getElementById('hist-lijst');
-  if(!keys.length){ el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.72rem;text-align:center;padding:18px 0;">Geen opgeslagen dagen in deze periode.</div>'; return; }
-
-  el.innerHTML=keys.map(iso=>{
-    const d=dagen[iso];
-    const rij=(d.rijBus||0)+(d.rijVr||0);
-    const werk=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
-    const tot=(d.dagTot)||rij+werk;
-    return `<div class="hist-item">
-      <div class="hist-datum">${datumLabel(iso)}</div>
-      <div class="hist-grid">
-        <div class="hist-cell"><div class="hist-val" style="color:var(--at);">${m2s(d.rijBus||0)}</div><div class="hist-sub">🚌 Rij bus</div></div>
-        <div class="hist-cell"><div class="hist-val" style="color:var(--cbr);">${m2s(d.werkCBR||0)}</div><div class="hist-sub">🎓 CBR</div></div>
-        <div class="hist-cell"><div class="hist-val" style="color:var(--vr);">${m2s((d.rijVr||0)+(d.werkVr||0))}</div><div class="hist-sub">🚛 Vracht</div></div>
-        <div class="hist-cell"><div class="hist-val" style="color:#22d3ee;">${m2s(tot)}</div><div class="hist-sub">Totaal</div></div>
-      </div>
-      <div class="hist-actions">
-        <button onclick="laadDagDirect('${iso}')">📂 Laden</button>
-        <button onclick="verwijderDag('${iso}')" style="color:var(--danger);">🗑</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function laadDagDirect(iso){
-  syncDatum(iso);
-  laadDag();
-  toonTab('t');
-}
-function verwijderDag(iso){
-  if(!confirm(`Dag ${datumLabel(iso)} verwijderen?`)) return;
-  const dagen=laadOpgeslagen(); delete dagen[iso]; slaAllesOp(dagen); renderHistorie();
-}
-
-function printHistorie(){
-  const periodeVal=document.getElementById('hist-periode').value;
-  const dagen=laadOpgeslagen();
-  let keys=Object.keys(dagen).sort().reverse();
-  if(periodeVal!=='all'){
-    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
-    keys=keys.filter(k=>k>=grens.toISOString().slice(0,10));
-  }
-  if(!keys.length){alert('Geen gegevens.');return;}
-  let totRij=0,totWerk=0;
-  const rijen=keys.map(iso=>{
-    const d=dagen[iso];
-    const rij=(d.rijBus||0)+(d.rijVr||0);
-    const werk=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
-    totRij+=rij; totWerk+=werk;
-    return `<tr><td>${datumLabel(iso)}</td><td>${m2s(d.rijBus||0)}</td><td>${m2s(d.werkBus||0)}</td><td>${m2s(d.werkCBR||0)}</td><td>${m2s((d.rijVr||0)+(d.werkVr||0))}</td><td><strong>${m2s(rij+werk)}</strong></td></tr>`;
-  }).join('');
-  const html=`<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"><title>Arbeidstijden uitdraai</title>
-  <style>body{font-family:Arial,sans-serif;font-size:11pt;margin:20mm;}table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:6px 8px;border-bottom:2px solid #ccc;font-size:9pt;text-align:left;}td{padding:5px 8px;border-bottom:1px solid #e0e0e0;}tfoot td{font-weight:bold;border-top:2px solid #999;}</style>
-  </head><body><h1>Arbeidstijden Uitdraai</h1><p>Periode: laatste ${periodeVal==='all'?'alle':periodeVal} dagen · ${new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
-  <table><thead><tr><th>Datum</th><th>🚌 Rijtijd bus</th><th>💼 Arbeid bus</th><th>🎓 CBR</th><th>🚛 Vracht</th><th>Totaal</th></tr></thead>
-  <tbody>${rijen}</tbody><tfoot><tr><td>Totaal (${keys.length} dagen)</td><td colspan="3"></td><td></td><td>${m2s(totRij+totWerk)}</td></tr></tfoot></table>
-  <script>window.onload=()=>window.print();<\/script></body></html>`;
-  const w=window.open('','_blank'); w.document.write(html); w.document.close();
-}
-
-function exportCSV(){
-  const periodeVal=document.getElementById('hist-periode').value;
-  const dagen=laadOpgeslagen();
-  let keys=Object.keys(dagen).sort();
-  if(periodeVal!=='all'){
-    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
-    keys=keys.filter(k=>k>=grens.toISOString().slice(0,10));
-  }
-  if(!keys.length){alert('Geen gegevens.');return;}
-  const header='Datum;Dag;Rijtijd bus (min);Arbeid bus (min);CBR (min);Rijtijd vracht (min);Arbeid vracht (min);Pauze (min);Totaal (min)\n';
-  const rijen=keys.map(iso=>{
-    const d=dagen[iso];
-    const dag=dagNamen[new Date(iso+'T00:00:00').getDay()];
-    return `${iso};${dag};${d.rijBus||0};${d.werkBus||0};${d.werkCBR||0};${d.rijVr||0};${d.werkVr||0};${d.pauze||0};${d.dagTot||0}`;
-  }).join('\n');
-  const blob=new Blob(['\uFEFF'+header+rijen],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`arbeidstijden_${keys[0]}_tm_${keys[keys.length-1]}.csv`; a.click();
-}
-
 // ══ INIT ═══════════════════════════════════════════════════
-syncDatum(vandaagISO());
-laadDag();
-document.getElementById('man-start').value = nuT();
-document.getElementById('man-eind').value  = nuT();
+document.getElementById('inp-datum').value = vandaagISO();
+document.getElementById('inp-datum').addEventListener('change', e => {
+  huidigeDatum = e.target.value;
+  laadDagUitLS(huidigeDatum);
+  herbereken();
+});
+laadDagUitLS(vandaagISO());
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
