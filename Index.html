@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⏱️ Arbeidstijden Tracker v2.6-G</title>
+<title>⏱️ Arbeidstijden Tracker v2.8-G</title>
 <style>
 :root {
 --bg-color: #121824;
@@ -13,6 +13,8 @@
 --accent-cbr: #3b82f6;
 --accent-vracht: #ef4444;
 --success: #22c55e;
+--danger: #ef4444;
+--version-color: #a78bfa;
 }
 
 body {
@@ -46,10 +48,10 @@ font-size: 0.8rem;
 opacity: 0.6;
 margin-bottom: 20px;
 font-weight: bold;
-color: #a78bfa;
+color: var(--version-color);
 }
 
-/* STAP 1: Discipline Knoppen helemaal bovenaan */
+/* STAP 1: Discipline Knoppen */
 .discipline-selector {
 display: grid;
 grid-template-columns: repeat(3, 1fr);
@@ -73,7 +75,7 @@ font-size: 0.9rem;
 .btn-discipline.active[data-type="cbr"] { border-color: var(--accent-cbr); background-color: rgba(59, 130, 246, 0.1); }
 .btn-discipline.active[data-type="vracht"] { border-color: var(--accent-vracht); background-color: rgba(239, 68, 68, 0.1); }
 
-/* STAP 2: Datum & Invoerblok */
+/* STAP 2: Invoerblok */
 .card {
 background-color: var(--card-color);
 border-radius: 12px;
@@ -147,6 +149,7 @@ margin-top: 5px;
 
 .text-green { color: var(--success); }
 .text-yellow { color: var(--accent-bus); }
+.text-red { color: var(--danger); }
 
 .alert-box {
 background-color: rgba(34, 197, 94, 0.1);
@@ -158,59 +161,128 @@ text-align: center;
 font-size: 0.9rem;
 margin-top: 10px;
 }
+
+/* HISTORIE SECTIE */
+.history-title {
+font-size: 1.1rem;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin: 25px 0 10px 0;
+opacity: 0.9;
+}
+
+.history-card {
+background-color: rgba(30, 41, 59, 0.7);
+border: 1px solid #334155;
+border-radius: 10px;
+padding: 12px;
+margin-bottom: 10px;
+}
+
+.history-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+border-bottom: 1px solid rgba(255,255,255,0.1);
+padding-bottom: 6px;
+}
+
+.history-date {
+font-weight: bold;
+font-size: 0.95rem;
+}
+
+.tag-container {
+display: flex;
+gap: 5px;
+align-items: center;
+}
+
+.tag {
+font-size: 0.75rem;
+padding: 2px 6px;
+border-radius: 4px;
+font-weight: bold;
+}
+.tag-bus { background-color: rgba(234, 179, 8, 0.2); color: var(--accent-bus); }
+.tag-cbr { background-color: rgba(59, 130, 246, 0.2); color: var(--accent-cbr); }
+.tag-vracht { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-vracht); }
+
+/* Versie-tag in de historie */
+.tag-version {
+background-color: rgba(167, 139, 250, 0.15);
+color: var(--version-color);
+border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.history-meta {
+font-size: 0.8rem;
+opacity: 0.7;
+margin-bottom: 8px;
+}
+
+.grid-4 {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 5px;
+text-align: center;
+}
+
+.mini-stat {
+background-color: rgba(0,0,0,0.2);
+padding: 5px;
+border-radius: 4px;
+font-size: 0.75rem;
+}
+.mini-stat div { font-weight: bold; font-size: 0.85rem; margin-top: 2px; }
 </style>
 </head>
 <body>
 
 <div class="container">
 <h1>⏱️ Arbeidstijden Tracker</h1>
-<div class="version">Versie 2.6-G</div>
+<div class="version">Versie 2.8-G</div>
 
-<!-- STAP 1: Discipline Knoppen helemaal bovenaan -->
 <div class="discipline-selector">
 <button class="btn-discipline active" data-type="bus" onclick="switchDiscipline('bus')">🚌 Bus</button>
 <button class="btn-discipline" data-type="cbr" onclick="switchDiscipline('cbr')">💼 CBR</button>
-<button class="btn-discipline" data-type="vracht" onclick="switchDiscipline('vracht')">🚛 Vracht</button>
+<button class="btn-discipline" data-type="vracht" onclick="switchDiscipline('vracht')">自由 Vracht</button>
 </div>
 
-<!-- STAP 2: Datum & Dynamische Invoer -->
 <div class="card">
 <label for="datum">Selecteer Datum</label>
 <input type="date" id="datum">
 
-<!-- BUS PANEEL -->
 <div id="paneel-bus" class="invoer-paneel active">
 <label for="dienstnummer">Dienstnummer (EBS)</label>
 <input type="text" id="dienstnummer" placeholder="Bijv. 4717">
 <button class="btn-action" onclick="laadBusDienst()">🚌 Dienst Inladen</button>
 </div>
 
-<!-- CBR PANEEL -->
 <div id="paneel-cbr" class="invoer-paneel">
 <button class="btn-action" style="background-color: var(--accent-cbr);" onclick="laadCbrStandaard()">💼 Standaard CBR-dag Inladen</button>
 </div>
 
-<!-- VRACHTAUTO PANEEL -->
 <div id="paneel-vracht" class="invoer-paneel">
 <div class="grid-2">
 <div>
 <label>Start Rijtijd</label>
-<input type="time" id="vracht-rij-start">
+<input type="time" id="vracht-rij-start" value="07:00">
 </div>
 <div>
 <label>Eind Rijtijd</label>
-<input type="time" id="vracht-rij-eind">
+<input type="time" id="vracht-rij-eind" value="15:30">
 </div>
 </div>
 <button class="btn-action" style="background-color: var(--accent-vracht);" onclick="voegVrachtUrenToe()">🚛 Vrachturen Opslaan</button>
 </div>
 </div>
 
-<!-- STAP 3: De Totalen & Wettelijke Tellers (Dashboard) -->
 <div class="card">
 <label>Dagsamenvatting Geselecteerde Dag</label>
 <div class="grid-2">
-<div class="stat-box">Diensturen<div class="stat-val" id="lbl-diensturen">00:00</div></div>
+<div class="stat-box">Diensttijd<div class="stat-val" id="lbl-diensturen">00:00</div></div>
 <div class="stat-box">Totale Pauze<div class="stat-val" id="lbl-pauze">00:00</div></div>
 </div>
 <div class="grid-2">
@@ -218,32 +290,32 @@ margin-top: 10px;
 <div class="stat-box">Totale Arbeid<div class="stat-val text-yellow" id="lbl-arbeid">00:00</div></div>
 </div>
 
-<label style="margin-top: 15px;">Wettelijk Resterend & Limieten</label>
-<div class="grid-2">
-<div class="stat-box">Resterende Rijtijd (Dag)<div class="stat-val text-green" id="lbl-rest-rijdag">9:00</div></div>
-<div class="stat-box">Resterende Arbeid (Week)<div class="stat-val text-green" id="lbl-rest-arbweek">60:00</div></div>
-</div>
+<label style="margin-top: 15px;">Wettelijke Indicatoren & Controle</label>
 <div class="grid-2">
 <div class="stat-box">Gerealiseerde Nachtrust<div class="stat-val" id="lbl-nachtrust">--:--</div></div>
-<div class="stat-box">Pauze status<div class="stat-val" id="lbl-pauze-status">OK</div></div>
+<div class="stat-box">Gedetecteerde Nachturen<div class="stat-val" id="lbl-nachturen">0:00</div></div>
 </div>
 
 <div id="wettelijke-melding" class="alert-box">
 Systeem operationeel. Voer gegevens in om de wetgeving te toetsen.
 </div>
 </div>
+
+<div class="history-title">📅 Gegevens Historie</div>
+<div id="historie-lijst"></div>
 </div>
 
 <script>
-// Database voor Busdiensten (Letters worden genegeerd bij het zoeken)
+const CURRENT_VERSION = "v2.8-G";
+
 const dienstenDatabase = {
 "4717": { start: "08:12", eind: "16:30", rijtijd: 345, arbeid: 45, pauze: 45 },
-"4701": { start: "07:31", eind: "16:16", rijtijd: 360, arbeid: 60, pauze: 65 }
+"4701": { start: "07:31", eind: "16:16", rijtijd: 360, arbeid: 60, pauze: 65 },
+"4402": { start: "04:15", eind: "13:00", rijtijd: 320, arbeid: 80, pauze: 45 }
 };
 
 let logboekData = {};
 
-// Zet datum standaard op vandaag
 document.getElementById('datum').valueAsDate = new Date();
 
 function switchDiscipline(type) {
@@ -254,52 +326,61 @@ document.querySelectorAll('.invoer-paneel').forEach(p => p.classList.remove('act
 document.getElementById(paneel-${type}`).classList.add('active');
 }
 
+function berekenNachtMinuten(start, eind) {
+const [hStart, mStart] = start.split(':').map(Number);
+const [hEind, mEind] = eind.split(':').map(Number);
+let startMinuten = hStart * 60 + mStart;
+let eindMinuten = hEind * 60 + mEind;
+let overlapStart = Math.max(startMinuten, 0);
+let overlapEind = Math.min(eindMinuten, 360);
+return (overlapStart < overlapEind) ? (overlapEind - overlapStart) : 0;
+}
+
 function laadBusDienst() {
 const nr = document.getElementById('dienstnummer').value.trim();
 const datum = document.getElementById('datum').value;
-
 if (dienstenDatabase[nr]) {
 const data = dienstenDatabase[nr];
-slaDagOp(datum, 'bus', data.rijtijd, data.arbeid, data.pauze, data.start, data.eind);
+slaDagOp(datum, 'bus', data.rijtijd, data.arbeid, data.pauze, data.start, data.eind, Dienst ${nr}`);
 updateDashboard(datum);
-toonMelding(✅ Dienst ${nr} succesvol ingeladen voor ${datum}!);
+renderHistorie();
 } else {
-alert("Dienstnummer niet gevonden in de database.");
+alert("Dienstnummer niet gevonden.");
 }
 }
 
 function laadCbrStandaard() {
 const datum = document.getElementById('datum').value;
-slaDagOp(datum, 'cbr', 0, 480, 45, "08:00", "16:45");
+slaDagOp(datum, 'cbr', 0, 480, 45, "08:00", "16:45", "CBR Examinator");
 updateDashboard(datum);
-toonMelding(✅ Standaard CBR-dag opgeslagen voor ${datum}.`);
+renderHistorie();
 }
 
 function voegVrachtUrenToe() {
 const datum = document.getElementById('datum').value;
 const start = document.getElementById('vracht-rij-start').value;
 const eind = document.getElementById('vracht-rij-eind').value;
-
-if(!start || !eind) {
-alert("Vul uren in voor de vrachtwagen.");
-return;
-}
+if(!start || !eind) return;
 
 const [hStart, mStart] = start.split(':').map(Number);
 const [hEind, mEind] = eind.split(':').map(Number);
 const totaalMinuten = (hEind * 60 + mEind) - (hStart * 60 + mStart);
 
-slaDagOp(datum, 'vracht', totaalMinuten, 0, 0, start, eind);
+slaDagOp(datum, 'vracht', totaalMinuten, 30, 45, start, eind, "Vracht Rit");
 updateDashboard(datum);
-toonMelding(✅ Vrachtwagen uren toegevoegd voor${datum}.`);
+renderHistorie();
 }
 
-function slaDagOp(datum, discipline, rijtijd, arbeid, pauze, start, eind) {
+function slaDagOp(datum, discipline, rijtijd, arbeid, pauze, start, eind, label) {
 if (!logboekData[datum]) {
-logboekData[datum] = { bus: {}, cbr: {}, vracht: {}, start: start, eind: eind };
+logboekData[datum] = {
+bus: {}, cbr: {}, vracht: {},
+start: start, eind: eind, label: label,
+version: CURRENT_VERSION // Sla de versie op bij de dag
+};
 }
-
 logboekData[datum][discipline] = { rijtijd, arbeid, pauze };
+logboekData[datum].label = label;
 if(start < logboekData[datum].start) logboekData[datum].start = start;
 if(eind > logboekData[datum].eind) logboekData[datum].eind = eind;
 }
@@ -311,49 +392,84 @@ if (!dag) return;
 let totaleRijtijd = (dag.bus.rijtijd || 0) + (dag.vracht.rijtijd || 0);
 let totaleArbeid = (dag.bus.arbeid || 0) + (dag.cbr.arbeid || 0) + (dag.vracht.arbeid || 0) + totaleRijtijd;
 let totalePauze = (dag.bus.pauze || 0) + (dag.cbr.pauze || 0) + (dag.vracht.pauze || 0);
+let nachtMinuten = berekenNachtMinuten(dag.start, dag.eind);
 
-document.getElementById('lbl-diensturen').innerText = ${dag.start} - ${dag.eind};
+document.getElementById('lbl-diensturen').innerText = ``${dag.start} - ${dag.eind};
 document.getElementById('lbl-rijtijd').innerText = formatMinuten(totaleRijtijd);
 document.getElementById('lbl-arbeid').innerText = formatMinuten(totaleArbeid);
 document.getElementById('lbl-pauze').innerText = formatMinuten(totalePauze);
-
-let restRijDag = Math.max(0, 540 - totaleRijtijd);
-document.getElementById('lbl-rest-rijdag').innerText = formatMinuten(restRijDag);
+document.getElementById('lbl-nachturen').innerText = formatMinuten(nachtMinuten);
 
 let gisterDate = new Date(datum);
 gisterDate.setDate(gisterDate.getDate() - 1);
 let gisterStr = gisterDate.toISOString().split('T')[0];
 
+const rustVeld = document.getElementById('lbl-nachtrust');
 if (logboekData[gisterStr]) {
-let eindGister = logboekData[gisterStr].eind;
-let startVandaag = dag.start;
-document.getElementById('lbl-nachtrust').innerText = berekenRustTussen(eindGister, startVandaag);
+let rustMinuten = berekenRustMinutenTussen(logboekData[gisterStr].eind, dag.start);
+rustVeld.innerText = formatMinuten(rustMinuten);
+if (rustMinuten < 660) {
+rustVeld.className = "stat-val text-red";
+document.getElementById('wettelijke-melding').innerText = "⚠️ Let op: Dagelijkse nachtrust is korter dan 11 uur!";
+document.getElementById('wettelijke-melding').style.borderColor = "var(--danger)";
 } else {
-document.getElementById('lbl-nachtrust').innerText = "11:00+ (OK)";
+rustVeld.className = "stat-val text-green";
+document.getElementById('wettelijke-melding').innerText = "✅ Geregistreerde tijden voldoen aan de wetgeving.";
+document.getElementById('wettelijke-melding').style.borderColor = "var(--success)";
+}
+} else {
+rustVeld.innerText = "Eerste invoer";
+rustVeld.className = "stat-val";
+document.getElementById('wettelijke-melding').innerText = "ℹ️ Geen gegevens van gister bekend.";
 }
 }
 
 function formatMinuten(minuten) {
 const uren = Math.floor(minuten / 60);
 const mins = minuten % 60;
-return ${uren.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')};
+return ``${uren.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')};
 }
 
-function berekenRustTussen(eind, start) {
-const [hEind, mEind] = eind.split(':').map(Number);
-const [hStart, mStart] = start.split(':').map(Number);
-let rustMinuten = (hStart * 60 + mStart) + (1440 - (hEind * 60 + mEind));
-return formatMinuten(rustMinuten);
+function berekenRustMinutenTussen(eindGister, startVandaag) {
+const [hEind, mEind] = eindGister.split(':').map(Number);
+const [hStart, mStart] = startVandaag.split(':').map(Number);
+return (hStart * 60 + mStart) + (1440 - (hEind * 60 + mEind));
 }
 
-function toonMelding(tekst) {
-const box = document.getElementById('wettelijke-melding');
-box.innerText = tekst;
-box.style.backgroundColor = "rgba(6, 182, 212, 0.1)";
-box.style.borderColor = "#06b6d4";
-box.style.color = "#06b6d4";
+function renderHistorie() {
+const lijst = document.getElementById('historie-lijst');
+lijst.innerHTML = '';
+const gesorteerdeDatums = Object.keys(logboekData).sort().reverse();
+
+if(gesorteerdeDatums.length === 0) {
+lijst.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px;">Nog geen geschiedenis.</div>';
+return;
 }
+
+gesorteerdeDatums.forEach(datum => {
+const dag = logboekData[datum];
+let totaleRijtijd = (dag.bus.rijtijd || 0) + (dag.vracht.rijtijd || 0);
+let totaleArbeid = (dag.bus.arbeid || 0) + (dag.cbr.arbeid || 0) + (dag.vracht.arbeid || 0) + totaleRijtijd;
+
+let disciplineTag = 'bus';
+if(dag.cbr.arbeid) disciplineTag = 'cbr';
+if(dag.vracht.rijtijd) disciplineTag = 'vracht';
+
+const card = document.createElement('div');
+card.className = 'history-card';
+card.innerHTML = &lt;div class="history-header"&gt; &lt;div class="history-date"&gt;📅${datum}</div>
+<div class="tag-container">
+<span class="tag tag-{dag.label || 'Geen Label'}</span>
+<span class="tag tag-version">{dag.start} - {formatMinuten(dag.bus.rijtijd || 0)}</div></div>
+<div class="mini-stat">CBR<div>{formatMinuten(dag.vracht.rijtijd || 0)}</div></div>
+<div class="mini-stat" style="background-color:rgba(6, 182, 212, 0.2)">Totaal<div>${formatMinuten(totaleArbeid)}</div></div>
+</div>
+`;
+lijst.appendChild(card);
+});
+}
+
+renderHistorie();
 </script>
-
 </body>
 </html>
