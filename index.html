@@ -12,860 +12,443 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f1117; --panel: #181c27; --border: #252a3a;
-    --accent: #f0a500; --at: #f0a500; --ak: #3b82f6;
-    --danger: #ef4444; --warn: #f97316; --ok: #22c55e;
-    --text: #e8eaf0; --muted: #6b7280; --card: #1e2333;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px 14px 48px; }
+:root {
+  --bg:#0f1117; --panel:#181c27; --border:#252a3a;
+  --text:#e8eaf0; --muted:#6b7280; --card:#1e2333;
+  --at:#f0a500; --cbr:#3b82f6; --vr:#a855f7;
+  --ok:#22c55e; --warn:#f97316; --danger:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px 12px 60px;}
 
-  header { text-align: center; margin-bottom: 22px; }
-  header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; color: var(--accent); }
-  header p { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+header{text-align:center;margin-bottom:18px;}
+header h1{font-size:1.6rem;font-weight:800;letter-spacing:-1px;color:var(--at);}
+header p{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
 
-  /* ── Gecombineerde ATW-balk bovenaan ── */
-  .atw-bar {
-    max-width: 900px; margin: 0 auto 20px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 20px;
-  }
-  .atw-bar-title {
-    font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
-    letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .atw-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#a855f7; }
-  .atw-gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
-  @media(max-width:500px){ .atw-gauges { grid-template-columns: 1fr; } }
-  .atw-alert-row { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+/* ── Gemeenschappelijke card ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;max-width:900px;margin:0 auto 14px;}
+.ct{font-size:0.65rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.ct::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;}
+.ct.at::before{background:var(--at);}
+.ct.cbr::before{background:var(--cbr);}
+.ct.vr::before{background:var(--vr);}
+.ct.combo::before{background:#22d3ee;}
+.ct.hist::before{background:#ec4899;}
 
-  /* ── Tabs ── */
-  .tabs { display: flex; gap: 8px; max-width: 900px; margin: 0 auto 18px; }
-  .tab {
-    flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--card); cursor: pointer; text-align: center;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.92rem;
-    color: var(--muted); transition: all 0.2s; user-select: none;
-  }
-  .tab:hover { color: var(--text); border-color: var(--muted); }
-  .tab.act-t { color: #000; background: var(--at); border-color: var(--at); }
-  .tab.act-k { color: #fff; background: var(--ak); border-color: var(--ak); }
-  .tab.act-h { color: #fff; background: #a855f7; border-color: #a855f7; }
-  .tab-sub { font-size: 0.63rem; font-family: 'DM Mono', monospace; font-weight: 400; margin-top: 2px; opacity: 0.75; text-transform: uppercase; letter-spacing: 1px; }
+/* ── Invoer lookup ── */
+.lookup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:480px){.lookup-grid{grid-template-columns:1fr;}}
+label{display:block;font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+input[type="date"],input[type="time"],input[type="text"],input[type="number"],select{
+  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'DM Mono',monospace;font-size:0.95rem;
+  padding:9px 11px;margin-bottom:10px;outline:none;-webkit-appearance:none;transition:border-color .2s;
+}
+input:focus,select:focus{border-color:var(--at);}
 
-  .panel { display: none; }
-  .panel.active { display: block; }
+.btn{width:100%;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:11px;cursor:pointer;transition:opacity .2s;}
+.btn:hover{opacity:.85;}
+.btn-at{background:var(--at);color:#000;}
+.btn-cbr{background:var(--cbr);color:#fff;}
+.btn-vr{background:var(--vr);color:#fff;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted);}
+.btn-row{display:flex;gap:8px;}
+.btn-row .btn{flex:1;}
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 900px; margin: 0 auto; }
-  @media(max-width:640px){ .grid { grid-template-columns: 1fr; } }
+/* ── Dagtotalen summary ── */
+.day-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.ds-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.ds-val{font-size:1.3rem;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:3px;}
+.ds-lbl{font-size:0.6rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.ds-val.at{color:var(--at);}
+.ds-val.cbr{color:var(--cbr);}
+.ds-val.vr{color:var(--vr);}
+.ds-val.combo{color:#22d3ee;}
+.ds-val.ok{color:var(--ok);}
+.ds-val.warn{color:var(--warn);}
+.ds-val.danger{color:var(--danger);}
 
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-  .card.full { grid-column: 1 / -1; }
+/* ── Gauge ── */
+.gw{margin-bottom:11px;}
+.gl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.67rem;color:var(--muted);margin-bottom:4px;}
+.gl span:last-child{color:var(--text);font-size:0.78rem;}
+.gb{width:100%;height:8px;background:var(--panel);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.gf{height:100%;border-radius:99px;transition:width .4s,background .3s;}
+.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;}
 
-  .ct { font-size: 0.67rem; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .ct.t::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--at); }
-  .ct.k::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ak); }
+/* ── Resterende tellers ── */
+.rest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+@media(max-width:400px){.rest-grid{grid-template-columns:1fr 1fr;}}
+.rest-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 11px;text-align:center;}
+.rest-val{font-size:1.1rem;font-weight:800;font-family:'DM Mono',monospace;margin-bottom:2px;}
+.rest-lbl{font-size:0.57rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;line-height:1.4;}
 
-  label { display:block; font-size:0.68rem; font-family:'DM Mono',monospace; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px; }
-  input[type="number"], input[type="time"], select {
-    width:100%; background:var(--panel); border:1px solid var(--border); border-radius:8px;
-    color:var(--text); font-family:'DM Mono',monospace; font-size:0.97rem;
-    padding:9px 11px; margin-bottom:12px; outline:none; transition:border-color 0.2s; -webkit-appearance:none;
-  }
-  input:focus, select:focus { border-color: var(--accent); }
-  .row { display:flex; gap:10px; } .row > div { flex:1; }
+/* ── Rust ── */
+.rust-block{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;}
+.rust-val{font-size:1.1rem;font-weight:800;font-family:'DM Mono',monospace;}
+.rust-lbl{font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted);}
 
-  .btn-t { width:100%; background:var(--at); color:#000; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; margin-top:2px; }
-  .btn-k { width:100%; background:var(--ak); color:#fff; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; padding:11px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; margin-top:2px; }
-  .btn-t:hover,.btn-k:hover { opacity:0.85; } .btn-t:active,.btn-k:active { transform:scale(0.98); }
+/* ── Alerts ── */
+.alerts{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.alert{border-radius:8px;padding:10px 13px;font-size:0.78rem;border:1px solid transparent;line-height:1.5;}
+.alert.ok{background:#052e16;border-color:#166534;color:#86efac;}
+.alert.warn{background:#1c1008;border-color:#92400e;color:#fdba74;}
+.alert.danger{background:#1c0a0a;border-color:#991b1b;color:#fca5a5;}
+.alert.info{background:#0c1a2e;border-color:#1e40af;color:#93c5fd;}
 
-  .reset-btn { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.7rem; padding:7px; margin-top:9px; width:100%; border-radius:8px; cursor:pointer; font-family:'DM Mono',monospace; transition:color 0.2s,border-color 0.2s; }
-  .reset-btn:hover { color:var(--danger); border-color:var(--danger); }
+/* ── Tabs ── */
+.tabs{display:flex;gap:7px;max-width:900px;margin:0 auto 14px;}
+.tab{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--muted);transition:all .2s;user-select:none;}
+.tab-sub{font-size:0.58rem;font-family:'DM Mono',monospace;font-weight:400;margin-top:2px;opacity:.75;text-transform:uppercase;}
+.tab.act-t{color:#000;background:var(--at);border-color:var(--at);}
+.tab.act-k{color:#fff;background:var(--cbr);border-color:var(--cbr);}
+.tab.act-v{color:#fff;background:var(--vr);border-color:var(--vr);}
+.tab.act-h{color:#fff;background:#ec4899;border-color:#ec4899;}
+.panel{display:none;}.panel.active{display:block;}
 
-  .gw { margin-bottom:13px; }
-  .gl { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--muted); margin-bottom:5px; }
-  .gl span:last-child { color:var(--text); font-size:0.8rem; }
-  .gb { width:100%; height:9px; background:var(--panel); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
-  .gf { height:100%; border-radius:99px; transition:width 0.45s cubic-bezier(.4,0,.2,1),background 0.3s; }
+/* ── Handmatige invoer ── */
+.invoer-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+@media(max-width:480px){.invoer-row{grid-template-columns:1fr 1fr;}}
 
-  .alerts { display:flex; flex-direction:column; gap:8px; }
-  .alert { border-radius:8px; padding:11px 13px; font-size:0.8rem; border:1px solid transparent; line-height:1.5; }
-  .alert.ok     { background:#052e16; border-color:#166534; color:#86efac; }
-  .alert.warn   { background:#1c1008; border-color:#92400e; color:#fdba74; }
-  .alert.danger { background:#1c0a0a; border-color:#991b1b; color:#fca5a5; }
+/* ── Logboek ── */
+.log-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-top:8px;}
+.log-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:0.74rem;}
+.li-lbl{color:var(--text);}.li-sub{color:var(--muted);font-size:0.63rem;margin-top:1px;}
+.log-item button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;font-size:0.63rem;border-radius:5px;cursor:pointer;}
+.log-item button:hover{color:var(--danger);border-color:var(--danger);}
 
-  .log-list { display:flex; flex-direction:column; gap:7px; margin-top:7px; max-height:200px; overflow-y:auto; }
-  .log-item { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:9px 11px; display:flex; justify-content:space-between; align-items:center; font-family:'DM Mono',monospace; font-size:0.76rem; }
-  .li-info { color:var(--text); } .li-sub { color:var(--muted); font-size:0.66rem; margin-top:2px; }
-  .log-item button { width:auto; background:transparent; border:1px solid var(--border); color:var(--muted); padding:3px 9px; font-size:0.66rem; margin-top:0; border-radius:6px; cursor:pointer; font-family:'DM Mono',monospace; transition:color 0.2s,border-color 0.2s; }
-  .log-item button:hover { color:var(--danger); border-color:var(--danger); }
+/* ── Historie ── */
+.hist-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:9px;}
+.hist-datum{font-weight:700;font-family:'DM Mono',monospace;font-size:0.88rem;margin-bottom:8px;}
+.hist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.hist-cell{text-align:center;}
+.hist-val{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:800;}
+.hist-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;}
+.hist-actions{display:flex;gap:6px;margin-top:10px;}
+.hist-actions button{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.65rem;padding:5px;border-radius:6px;cursor:pointer;}
 
-  .tg { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-  .tb { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
-  .tb .val { font-size:1.45rem; font-weight:800; font-family:'DM Mono',monospace; line-height:1; margin-bottom:4px; }
-  .tb .val.t { color:var(--at); } .tb .val.k { color:var(--ak); } .tb .val.c { color:#a855f7; }
-  .tb .lbl { font-size:0.63rem; font-family:'DM Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
-
-  .rg { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-  .rb { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
-  .rb .rlbl { font-size:0.63rem; font-family:'DM Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
-  .rb .rval { font-size:0.97rem; font-weight:700; color:var(--text); font-family:'DM Mono',monospace; }
-  .rb .rsub { font-size:0.65rem; font-family:'DM Mono',monospace; color:var(--muted); margin-top:3px; line-height:1.5; }
-
-  .badge-combo { display:inline-block; background:#a855f720; border:1px solid #a855f760; color:#d8b4fe; border-radius:5px; font-family:'DM Mono',monospace; font-size:0.63rem; padding:2px 7px; vertical-align:middle; margin-left:6px; }
-
-  /* ── Tekst import sectie ── */
-  .import-bar {
-    max-width: 900px; margin: 0 auto 20px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 20px;
-  }
-  .import-bar-title {
-    font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
-    letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .import-bar-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#22d3ee; }
-  .import-bar .datum-rij {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
-  }
-  .import-bar textarea {
-    width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem;
-    padding: 10px 12px; min-height: 130px; resize: vertical; outline: none;
-    transition: border-color 0.2s; margin-bottom: 10px; line-height: 1.6;
-  }
-  .import-bar textarea:focus { border-color: #22d3ee; }
-  .import-bar textarea::placeholder { color: var(--muted); }
-  .btn-verwerk {
-    width: 100%; background: #22d3ee; color: #000; border: none; border-radius: 8px;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; padding: 12px;
-    cursor: pointer; transition: opacity 0.2s;
-  }
-  .btn-verwerk:hover { opacity: 0.85; }
-  .import-resultaten { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
-  .import-item {
-    background: var(--panel); border: 1px solid #22d3ee30; border-radius: 8px;
-    padding: 9px 12px; display: flex; justify-content: space-between; align-items: center;
-    font-family: 'DM Mono', monospace; font-size: 0.74rem; gap: 8px;
-  }
-  .import-item .ii-label { color: var(--text); font-size: 0.78rem; }
-  .import-item .ii-sub { color: var(--muted); font-size: 0.64rem; margin-top: 2px; }
-  .import-item .ii-badge {
-    border-radius: 5px; padding: 2px 8px; font-size: 0.64rem; white-space: nowrap;
-    border: 1px solid transparent;
-  }
-  .ii-badge.rij  { background:#f0a50020; border-color:#f0a50060; color:#f0a500; }
-  .ii-badge.werk { background:#3b82f620; border-color:#3b82f660; color:#93c5fd; }
-  .ii-badge.pauze{ background:#22c55e20; border-color:#22c55e60; color:#86efac; }
-  .import-acties { display: flex; gap: 8px; margin-top: 8px; }
-  .btn-import-all {
-    flex: 1; background: transparent; border: 1px solid #22d3ee60; color: #22d3ee;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
-    cursor: pointer; border-radius: 8px; transition: background 0.2s;
-  }
-  .btn-import-all:hover { background: #22d3ee15; }
-  .btn-import-bus {
-    flex: 1; background: #f0a50015; border: 1px solid #f0a50060; color: #f0a500;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
-    cursor: pointer; border-radius: 8px; transition: background 0.2s;
-  }
-  .btn-import-cbr {
-    flex: 1; background: #3b82f615; border: 1px solid #3b82f660; color: #93c5fd;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; padding: 9px;
-    cursor: pointer; border-radius: 8px; transition: background 0.2s;
-  }
+details summary{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);cursor:pointer;user-select:none;padding:4px 0;}
+textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;padding:10px;min-height:90px;resize:vertical;outline:none;margin-bottom:8px;line-height:1.6;}
+.reset-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.68rem;padding:7px;margin-top:8px;width:100%;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;}
+.reset-btn:hover{color:var(--danger);border-color:var(--danger);}
 </style>
 </head>
 <body>
 
 <header>
   <h1>⏱ Arbeidstijden Tracker</h1>
-  <p>Rijtijdenwet · EU 561/2006 · Arbeidstijdenwet — Nederland</p>
+  <p>Rijtijdenwet · ATW — Bus · CBR · Vrachtauto</p>
 </header>
 
-<!-- ══ DIENST LOOKUP ══ -->
-<div class="import-bar">
-  <div class="import-bar-title">🚌 &nbsp;Dienst inladen via nummer</div>
-  <div class="datum-rij" style="margin-bottom:12px;">
-    <label style="margin:0;white-space:nowrap;">Datum</label>
-    <input type="date" id="import-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;">
-  </div>
-  <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-    <div style="flex:1;min-width:120px;">
-      <label style="display:block;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Dienstnummer</label>
-      <input type="text" id="dienst-nr" placeholder="bijv. 4717" inputmode="numeric"
-        style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:1.1rem;padding:10px 12px;outline:none;"
-        onkeydown="if(event.key==='Enter') laadDienstNummer()">
+<!-- ══ DIENST INVOER ══ -->
+<div class="card">
+  <div class="ct combo">🚌 Dienst inladen / handmatig toevoegen</div>
+
+  <div class="lookup-grid">
+    <div>
+      <label>Datum</label>
+      <input type="date" id="inp-datum">
     </div>
-    <button class="btn-verwerk" style="flex:2;min-width:160px;" onclick="laadDienstNummer()">🚌 Dienst inladen</button>
+    <div>
+      <label>Dienstnummer (EBS)</label>
+      <input type="text" id="inp-dienst" placeholder="bijv. 4717" inputmode="numeric"
+        onkeydown="if(event.key==='Enter') laadDienst()">
+    </div>
   </div>
-  <div id="import-status" style="font-family:'DM Mono',monospace;font-size:0.76rem;color:var(--muted);margin-top:8px;min-height:18px;"></div>
-  <div class="import-resultaten" id="import-resultaten"></div>
-  <div class="import-acties" id="import-acties" style="display:none;">
-    <button class="btn-import-bus" onclick="voegImportToe('bus')">🚌 Toevoegen aan Bus</button>
-    <button class="btn-import-cbr" onclick="voegImportToe('cbr')">🎓 Toevoegen aan CBR</button>
-  </div>
+  <button class="btn btn-at" onclick="laadDienst()">🚌 Dienst inladen</button>
+  <div id="dienst-status" style="font-family:'DM Mono',monospace;font-size:0.74rem;color:var(--muted);margin-top:8px;min-height:16px;"></div>
+
+  <!-- Handmatige toevoeging -->
   <details style="margin-top:14px;">
-    <summary style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;user-select:none;">✏️ Of plak vrije tekst (handmatig)</summary>
+    <summary>✏️ Handmatig uren toevoegen (CBR / Vrachtauto / overig)</summary>
     <div style="margin-top:10px;">
-      <textarea id="import-tekst" placeholder="Plak hier vrije tekst van een dienst..." style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;padding:10px 12px;min-height:100px;resize:vertical;outline:none;margin-bottom:8px;line-height:1.6;"></textarea>
-      <button class="btn-verwerk" style="background:#6b7280;" onclick="verwerkTekst()">📥 Tekst verwerken</button>
+      <div class="invoer-row">
+        <div>
+          <label>Van</label>
+          <input type="time" id="man-start">
+        </div>
+        <div>
+          <label>Tot</label>
+          <input type="time" id="man-eind">
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="man-type">
+            <option value="rij-bus">🚌 Rijtijd bus</option>
+            <option value="werk-bus">💼 Arbeid bus</option>
+            <option value="werk-cbr">🎓 CBR examen</option>
+            <option value="rij-vr">🚛 Rijtijd vracht</option>
+            <option value="werk-vr">💼 Arbeid vracht</option>
+            <option value="pauze">☕ Pauze</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:-4px;">
+        <button class="btn btn-ghost" onclick="voegHandmatigToe()">+ Toevoegen aan logboek</button>
+        <button class="btn btn-ghost" onclick="slaOpDag(true)" style="flex:0.5">💾 Opslaan</button>
+      </div>
     </div>
   </details>
 </div>
 
+<!-- ══ DASHBOARD: VANDAAG ══ -->
+<div class="card" id="dashboard-card">
+  <div class="ct combo">📊 Vandaag — <span id="dash-datum-lbl" style="color:var(--text);">—</span></div>
 
-<div class="atw-bar">
-  <div class="atw-bar-title">
-    ⚖️ &nbsp;Gecombineerde ATW-check — bus + CBR samen
-    <span class="badge-combo">alle arbeid</span>
+  <!-- Dagtotalen per discipline -->
+  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Totalen per discipline</div>
+  <div class="day-summary">
+    <div class="ds-block">
+      <div class="ds-val at" id="d-rij-bus">0:00</div>
+      <div class="ds-lbl">🚌 Rijtijd bus</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val at" id="d-werk-bus">0:00</div>
+      <div class="ds-lbl">💼 Arbeid bus</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val cbr" id="d-werk-cbr">0:00</div>
+      <div class="ds-lbl">🎓 CBR</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val vr" id="d-rij-vr">0:00</div>
+      <div class="ds-lbl">🚛 Rijtijd vracht</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val vr" id="d-werk-vr">0:00</div>
+      <div class="ds-lbl">💼 Arbeid vracht</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val ok" id="d-pauze">0:00</div>
+      <div class="ds-lbl">☕ Pauze</div>
+    </div>
   </div>
-  <div class="atw-gauges">
-    <div class="gw" id="c-gauge-dag"></div>
-    <div class="gw" id="c-gauge-week"></div>
-    <div class="gw" id="c-gauge-gem"></div>
-    <div class="gw" id="c-gauge-pauze"></div>
+
+  <!-- Gecombineerde totalen -->
+  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;">Gecombineerd totaal</div>
+  <div class="day-summary" style="grid-template-columns:1fr 1fr 1fr;">
+    <div class="ds-block">
+      <div class="ds-val combo" id="d-rij-tot">0:00</div>
+      <div class="ds-lbl">Totaal rijtijd</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val combo" id="d-werk-tot">0:00</div>
+      <div class="ds-lbl">Totaal arbeid</div>
+    </div>
+    <div class="ds-block">
+      <div class="ds-val combo" id="d-dag-tot">0:00</div>
+      <div class="ds-lbl">Dag totaal</div>
+    </div>
   </div>
-  <div class="atw-alert-row alerts" id="c-alerts">
-    <div class="alert ok">Voer activiteiten in beide tabbladen in voor gecombineerde controle.</div>
+
+  <!-- ATW Gauges -->
+  <div style="margin-top:12px;">
+    <div class="gauge-grid">
+      <div class="gw" id="g-dag-rij"></div>
+      <div class="gw" id="g-dag-werk"></div>
+      <div class="gw" id="g-week-rij"></div>
+      <div class="gw" id="g-week-werk"></div>
+    </div>
+  </div>
+
+  <!-- Resterende uren tellers -->
+  <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;">Nog beschikbaar vandaag</div>
+  <div class="rest-grid">
+    <div class="rest-block">
+      <div class="rest-val" id="r-rij-dag" style="color:var(--ok);">9:00</div>
+      <div class="rest-lbl">Rijtijd<br>dag (bus)</div>
+    </div>
+    <div class="rest-block">
+      <div class="rest-val" id="r-rij-week" style="color:var(--ok);">56:00</div>
+      <div class="rest-lbl">Rijtijd<br>week (bus)</div>
+    </div>
+    <div class="rest-block">
+      <div class="rest-val" id="r-werk-dag" style="color:var(--ok);">12:00</div>
+      <div class="rest-lbl">Arbeid<br>dag (ATW)</div>
+    </div>
+    <div class="rest-block">
+      <div class="rest-val" id="r-werk-week" style="color:var(--ok);">60:00</div>
+      <div class="rest-lbl">Arbeid<br>week (ATW)</div>
+    </div>
+    <div class="rest-block">
+      <div class="rest-val" id="r-pauze" style="color:var(--ok);">0 min</div>
+      <div class="rest-lbl">Pauze nog<br>nodig</div>
+    </div>
+    <div class="rest-block">
+      <div class="rest-val" id="r-rust" style="color:var(--ok);">11:00</div>
+      <div class="rest-lbl">Dagrust<br>vereist</div>
+    </div>
   </div>
 </div>
 
-<!-- ── Tabs ── -->
-<div class="tabs">
-  <div class="tab act-t" id="tab-t" onclick="toonPanel('t')">🚌 Bus<div class="tab-sub">Rijtijdenwet + ATW</div></div>
-  <div class="tab"       id="tab-k" onclick="toonPanel('k')">🎓 CBR<div class="tab-sub">Rijexamens ATW</div></div>
-  <div class="tab"       id="tab-h" onclick="toonPanel('h')">📅 Historie<div class="tab-sub">Uitdraai 14 dagen</div></div>
-</div>
-
-<!-- ══════════════ BUS ══════════════ -->
-<div class="panel active" id="panel-t">
-<div class="grid">
-
-  <div class="card full" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Datum</span>
-      <input type="date" id="t-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag(); syncImportDatum()">
+<!-- ══ RUSTTIJD ══ -->
+<div class="card" id="rust-card">
+  <div class="ct combo">🌙 Dagelijkse rust</div>
+  <div class="rust-block">
+    <div>
+      <div class="rust-lbl">Rusttijd na vorige dag</div>
+      <div class="rust-val" id="rust-uren" style="color:var(--ok);">— uur</div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="slaOpDag()" style="background:#f0a50020;border:1px solid #f0a50060;color:#f0a500;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">💾 Dag opslaan</button>
-      <button onclick="nieuweDag()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">+ Nieuwe dag</button>
+    <div style="text-align:right;">
+      <div class="rust-lbl">Minimum vereist</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--muted);">11u (of 9u verkort)</div>
     </div>
   </div>
+  <div id="rust-alert"></div>
 
-  <div class="card">
-    <div class="ct t">Activiteit toevoegen</div>
-    <div class="row">
-      <div><label>Starttijd</label><input type="time" id="t-start"/></div>
-      <div><label>Eindtijd</label><input type="time" id="t-eind"/></div>
-    </div>
-    <label>Type</label>
-    <select id="t-type">
-      <option value="rij">🚛 Rijtijd</option>
-      <option value="werk">💼 Andere werktijd</option>
-      <option value="pauze">☕ Pauze / onderbreking</option>
-      <option value="rust">🛏 Rusttijd</option>
-    </select>
-    <button class="btn-t" onclick="voegToeT()">+ Toevoegen</button>
-  </div>
-
-  <div class="card">
-    <div class="ct t">Daginstelling</div>
-    <label>Voertuigcategorie</label>
-    <select id="t-cat" onchange="herbereken()">
-      <option value="vracht">🚛 Vrachtwagen (&gt;3,5t)</option>
-      <option value="bus">🚌 Bus / touringcar</option>
-    </select>
-    <label>Rijtijd vorige dagen deze week (u)</label>
-    <input type="number" id="t-wv-rij" value="0" min="0" max="56" step="0.5" onchange="herbereken()"/>
-    <label>Werktijd vorige dagen deze week (u)</label>
-    <input type="number" id="t-wv-werk" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
-  </div>
-
-  <div class="card full">
-    <div class="ct t">Logboek transport — vandaag</div>
-    <div class="log-list" id="t-log"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div></div>
-    <button class="reset-btn" onclick="resetT()">🗑 Wissen</button>
-  </div>
-
-  <div class="card">
-    <div class="ct t">Totalen transport</div>
-    <div class="tg">
-      <div class="tb"><div class="val t" id="t-tot-rij">0:00</div><div class="lbl">Rijtijd</div></div>
-      <div class="tb"><div class="val t" id="t-tot-werk">0:00</div><div class="lbl">Werktijd totaal</div></div>
-      <div class="tb"><div class="val t" id="t-tot-pauze">0:00</div><div class="lbl">Pauze</div></div>
-      <div class="tb"><div class="val t" id="t-tot-rust">0:00</div><div class="lbl">Rusttijd</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ct t">Rijtijdenwet limieten</div>
-    <div id="t-g-dagrij" class="gw"></div>
-    <div id="t-g-dagwerk" class="gw"></div>
-    <div id="t-g-weekrij" class="gw"></div>
-    <div id="t-g-weekwerk" class="gw"></div>
-  </div>
-
-  <div class="card full">
-    <div class="ct t">Meldingen transport</div>
-    <div class="alerts" id="t-alerts"><div class="alert ok">Voer activiteiten in om te controleren.</div></div>
-  </div>
-
-  <div class="card full">
-    <div class="ct t">Wettelijke normen transport</div>
-    <div class="rg">
-      <div class="rb"><div class="rlbl">Max. dagrijtijd</div><div class="rval">9 u <span style="color:var(--muted);font-size:0.72rem">(2×/week 10 u)</span></div><div class="rsub">EU Vo. 561/2006 / Rijtijdenwet</div></div>
-      <div class="rb"><div class="rlbl">Max. weekrijtijd</div><div class="rval">56 u</div><div class="rsub">Max. 90 u per twee weken</div></div>
-      <div class="rb"><div class="rlbl">Verplichte pauze</div><div class="rval">45 min na 4,5 u</div><div class="rsub">Of gesplitst 15 + 30 min</div></div>
-      <div class="rb"><div class="rlbl">Min. dagelijkse rust</div><div class="rval">11 u</div><div class="rsub">3×/week verkortbaar tot 9 u</div></div>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<!-- ══════════════ CBR ══════════════ -->
-<div class="panel" id="panel-k">
-<div class="grid">
-
-  <div class="card full" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Datum</span>
-      <input type="date" id="k-datum" style="width:auto;margin-bottom:0;font-size:0.88rem;" onchange="laadDag()">
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="slaOpDag()" style="background:#3b82f620;border:1px solid #3b82f660;color:#3b82f6;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">💾 Dag opslaan</button>
-      <button onclick="nieuweDag()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">+ Nieuwe dag</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ct k">Activiteit toevoegen</div>
-    <div class="row">
-      <div><label>Starttijd</label><input type="time" id="k-start"/></div>
-      <div><label>Eindtijd</label><input type="time" id="k-eind"/></div>
-    </div>
-    <label>Type</label>
-    <select id="k-type">
-      <option value="werk">🎓 Examineren / werktijd</option>
-      <option value="pauze">☕ Pauze</option>
-    </select>
-    <button class="btn-k" onclick="voegToeK()">+ Toevoegen</button>
-    <button class="btn-k" style="margin-top:8px;background:#1e3a5f;color:#93c5fd;" onclick="vulStandaarddag()">📋 Standaard dag invullen</button>
-  </div>
-
-  <div class="card">
-    <div class="ct k">Weekinstellingen CBR</div>
-    <label>CBR-werktijd vorige dagen deze week (u)</label>
-    <input type="number" id="k-wv" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
-    <label>Gem. werkweek afgelopen 15 weken (u/week)</label>
-    <input type="number" id="k-gem15" value="0" min="0" max="60" step="0.5" onchange="herbereken()"/>
-    <div style="font-family:'DM Mono',monospace;font-size:0.66rem;color:var(--muted);margin-top:-6px;line-height:1.6;">ATW norm: gem. max. 48 u/week over 16 weken</div>
-    <div style="margin-top:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;">
-      <div style="font-family:'DM Mono',monospace;font-size:0.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Standaard CBR-dag</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text);line-height:1.8;">
-        07:50 – 16:45 &nbsp;(8u55 aanwezig)<br>
-        Pauze: 30 min<br>
-        Netto werktijd: <strong style="color:var(--ak)">8u25</strong>
+  <!-- Weekinstellingen -->
+  <details style="margin-top:10px;">
+    <summary>⚙️ Weekinstellingen (vorige dagen)</summary>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <label>Rijtijd bus vorige dagen (u)</label>
+        <input type="number" id="prev-rij-bus" value="0" min="0" max="56" step="0.5" onchange="herbereken()">
+      </div>
+      <div>
+        <label>Arbeid vorige dagen (u)</label>
+        <input type="number" id="prev-werk" value="0" min="0" max="60" step="0.5" onchange="herbereken()">
+      </div>
+      <div>
+        <label>Eindtijd gisteren</label>
+        <input type="time" id="prev-eind" onchange="berekenRust()">
+      </div>
+      <div>
+        <label>Gem. 15 weken (u/week)</label>
+        <input type="number" id="prev-gem15" value="0" min="0" max="60" step="0.5" onchange="herbereken()">
       </div>
     </div>
-  </div>
-
-  <div class="card full">
-    <div class="ct k">Logboek CBR — vandaag</div>
-    <div class="log-list" id="k-log"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div></div>
-    <button class="reset-btn" onclick="resetK()">🗑 Wissen</button>
-  </div>
-
-  <div class="card">
-    <div class="ct k">Totalen CBR</div>
-    <div class="tg">
-      <div class="tb"><div class="val k" id="k-tot-werk">0:00</div><div class="lbl">Werktijd</div></div>
-      <div class="tb"><div class="val k" id="k-tot-pauze">0:00</div><div class="lbl">Pauze</div></div>
-      <div class="tb"><div class="val k" id="k-tot-netto">0:00</div><div class="lbl">Netto werktijd</div></div>
-      <div class="tb"><div class="val k" id="k-tot-week">0:00</div><div class="lbl">Week t/m vandaag</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ct k">ATW limieten CBR</div>
-    <div id="k-g-dag" class="gw"></div>
-    <div id="k-g-week" class="gw"></div>
-    <div id="k-g-gem" class="gw"></div>
-  </div>
-
-  <div class="card full">
-    <div class="ct k">Meldingen CBR</div>
-    <div class="alerts" id="k-alerts"><div class="alert ok">Voer activiteiten in om te controleren.</div></div>
-  </div>
-
-  <div class="card full">
-    <div class="ct k">Wettelijke normen CBR / ATW</div>
-    <div class="rg">
-      <div class="rb"><div class="rlbl">Max. dagwerktijd</div><div class="rval">12 u</div><div class="rsub">ATW art. 5:7</div></div>
-      <div class="rb"><div class="rlbl">Max. weekwerktijd</div><div class="rval">60 u</div><div class="rsub">Absolute bovengrens</div></div>
-      <div class="rb"><div class="rlbl">Gemiddelde norm</div><div class="rval">48 u/week</div><div class="rsub">Over 16 aaneengesloten weken</div></div>
-      <div class="rb"><div class="rlbl">Pauze bij &gt;5,5 u</div><div class="rval">30 min</div><div class="rsub">Standaard CBR: 30 min pauze</div></div>
-    </div>
-  </div>
-
-</div>
+  </details>
 </div>
 
-<!-- ══════════════ HISTORIE ══════════════ -->
-<div class="panel" id="panel-h">
-<div class="grid">
-  <div class="card full">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-      <div class="ct" style="margin-bottom:0;color:#a855f7;">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#a855f7;margin-right:8px;"></span>
-        Overzicht opgeslagen dagen
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <select id="hist-periode" onchange="renderHistorie()" style="width:auto;margin-bottom:0;font-size:0.8rem;padding:6px 10px;">
-          <option value="14">Laatste 14 dagen</option>
-          <option value="7">Laatste 7 dagen</option>
-          <option value="30">Laatste 30 dagen</option>
-          <option value="all">Alle dagen</option>
-        </select>
-        <button onclick="printHistorie()" style="background:#a855f720;border:1px solid #a855f760;color:#d8b4fe;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">🖨️ Afdrukken</button>
-        <button onclick="exportCSV()" style="background:#22c55e20;border:1px solid #22c55e60;color:#86efac;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:0.72rem;cursor:pointer;">📊 CSV export</button>
-      </div>
-    </div>
-    <div id="hist-lijst" style="display:flex;flex-direction:column;gap:10px;">
-      <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.74rem;text-align:center;padding:24px 0;">Nog geen dagen opgeslagen. Vul een dag in en klik op "Dag opslaan".</div>
-    </div>
+<!-- ══ MELDINGEN ══ -->
+<div class="card">
+  <div class="ct combo">⚠️ Wettelijke meldingen</div>
+  <div class="alerts" id="alle-meldingen">
+    <div class="alert ok">Voer een dienst in om te controleren.</div>
   </div>
 </div>
+
+<!-- ══ TABS VOOR LOGBOEK ══ -->
+<div class="tabs" style="margin-top:6px;">
+  <div class="tab act-t" id="tab-t" onclick="toonTab('t')">🚌 Bus<div class="tab-sub">Logboek</div></div>
+  <div class="tab" id="tab-k" onclick="toonTab('k')">🎓 CBR<div class="tab-sub">Logboek</div></div>
+  <div class="tab" id="tab-v" onclick="toonTab('v')">🚛 Vracht<div class="tab-sub">Logboek</div></div>
+  <div class="tab" id="tab-h" onclick="toonTab('h')">📅 Historie<div class="tab-sub">14 dagen</div></div>
+</div>
+
+<!-- Bus logboek -->
+<div class="panel active card" id="panel-t">
+  <div class="ct at">🚌 Buslogboek — <span id="bus-dag-lbl"></span></div>
+  <div class="log-list" id="log-bus"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
+  <button class="reset-btn" onclick="resetLog('bus')">🗑 Bus logboek wissen</button>
+</div>
+
+<!-- CBR logboek -->
+<div class="panel card" id="panel-k">
+  <div class="ct cbr">🎓 CBR logboek — <span id="cbr-dag-lbl"></span></div>
+
+  <!-- CBR standaarddag knop -->
+  <button class="btn btn-cbr" style="margin-bottom:10px;" onclick="vulCBRStandaard()">📋 Standaard CBR-dag (07:50–16:45)</button>
+
+  <div class="log-list" id="log-cbr"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
+  <button class="reset-btn" onclick="resetLog('cbr')">🗑 CBR logboek wissen</button>
+</div>
+
+<!-- Vracht logboek -->
+<div class="panel card" id="panel-v">
+  <div class="ct vr">🚛 Vrachtlogboek — <span id="vr-dag-lbl"></span></div>
+  <div class="log-list" id="log-vr"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div></div>
+  <button class="reset-btn" onclick="resetLog('vr')">🗑 Vracht logboek wissen</button>
+</div>
+
+<!-- Historie -->
+<div class="panel card" id="panel-h">
+  <div class="ct hist">📅 Overzicht opgeslagen dagen</div>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <select id="hist-periode" onchange="renderHistorie()" style="width:auto;margin-bottom:0;flex:1;">
+      <option value="14">Laatste 14 dagen</option>
+      <option value="7">Laatste 7 dagen</option>
+      <option value="30">Laatste 30 dagen</option>
+      <option value="all">Alle dagen</option>
+    </select>
+    <button onclick="printHistorie()" class="btn btn-ghost" style="flex:1;">🖨️ Afdrukken</button>
+    <button onclick="exportCSV()" class="btn btn-ghost" style="flex:1;">📊 CSV</button>
+  </div>
+  <div id="hist-lijst"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;text-align:center;padding:18px 0;">Nog geen opgeslagen dagen.</div></div>
 </div>
 
 <script>
-// ── Hulp ────────────────────────────────────────────────────
+// ══ HULPFUNCTIES ═══════════════════════════════════════════
 const m2s = m => { const h=Math.floor(Math.abs(m)/60),mm=Math.abs(m)%60; return `${h}:${String(mm).padStart(2,'0')}`; };
-const s2m = s => { const[h,m]=s.split(':').map(Number); return h*60+m; };
+const s2m = s => { if(!s||!s.includes(':')) return 0; const[h,mn]=s.split(':').map(Number); return h*60+mn; };
 const nuT  = () => { const n=new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
+const vandaagISO = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; };
 const dagNamen = ['zo','ma','di','wo','do','vr','za'];
 function datumLabel(iso){ const d=new Date(iso+'T00:00:00'); return `${dagNamen[d.getDay()]} ${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}`; }
-const vandaagISO = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; };
+function kleur(pct){ return pct>=100?'var(--danger)':pct>=85?'var(--warn)':'var(--ok)'; }
 
 function gauge(id, label, val, max){
   const pct=Math.min((val/max)*100,100);
-  const k=pct>=100?'var(--danger)':pct>=85?'var(--warn)':'var(--ok)';
-  document.getElementById(id).innerHTML=`
-    <div class="gl"><span>${label}</span><span>${m2s(val)} / ${m2s(max)}</span></div>
+  const k=kleur(pct);
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.innerHTML=`<div class="gl"><span>${label}</span><span>${m2s(val)} / ${m2s(max)}</span></div>
     <div class="gb"><div class="gf" style="width:${pct}%;background:${k}"></div></div>`;
 }
 
-function toonM(id, lijst, heeftItems){
-  if(!heeftItems) lijst=[{t:'ok',m:'Voer activiteiten in om te controleren.'}];
-  else if(!lijst.length) lijst=[{t:'ok',m:'✓ Alles binnen de wettelijke limieten.'}];
-  document.getElementById(id).innerHTML=lijst.map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('');
+// ══ LOCALSTORAGE ═══════════════════════════════════════════
+function laadOpgeslagen(){ try{ return JSON.parse(localStorage.getItem('atw_v2')||'{}'); } catch(e){ return {}; } }
+function slaAllesOp(d){ localStorage.setItem('atw_v2', JSON.stringify(d)); }
+
+// ══ STATE ══════════════════════════════════════════════════
+// logboek entries: { s, e, type ('rij-bus'|'werk-bus'|'werk-cbr'|'rij-vr'|'werk-vr'|'pauze'), duur, id }
+let logBus=[], logCBR=[], logVr=[];
+let huidigeDatum = vandaagISO();
+
+function syncDatum(iso){
+  huidigeDatum = iso;
+  document.getElementById('inp-datum').value = iso;
+  const lbl = datumLabel(iso);
+  ['bus-dag-lbl','cbr-dag-lbl','vr-dag-lbl'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=lbl;
+  });
+  document.getElementById('dash-datum-lbl').textContent = lbl;
 }
 
-// ── Tab ────────────────────────────────────────────────────
-function toonPanel(p){
-  ['t','k','h'].forEach(id=>{
-    document.getElementById('panel-'+id).classList.toggle('active',p===id);
-    const cls = p===id ? (id==='t'?' act-t':id==='k'?' act-k':' act-h') : '';
-    document.getElementById('tab-'+id).className='tab'+cls;
+function laadDag(){
+  const dagen = laadOpgeslagen();
+  const d = dagen[huidigeDatum];
+  if(d){ logBus=d.bus||[]; logCBR=d.cbr||[]; logVr=d.vr||[]; }
+  else { logBus=[]; logCBR=[]; logVr=[]; }
+  renderAlles();
+}
+
+function slaOpDag(toonFeedback=false){
+  const datum = huidigeDatum;
+  const dagen = laadOpgeslagen();
+  const totalen = berekenTotalen();
+  dagen[datum] = { datum, bus:logBus, cbr:logCBR, vr:logVr, ...totalen };
+  slaAllesOp(dagen);
+  if(toonFeedback){
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent='✓ Opgeslagen!';
+    setTimeout(()=>btn.textContent=orig, 1600);
+  }
+}
+
+// ══ TABS ═══════════════════════════════════════════════════
+function toonTab(p){
+  ['t','k','v','h'].forEach(id=>{
+    document.getElementById('panel-'+id).classList.toggle('active', p===id);
+    const tab=document.getElementById('tab-'+id);
+    tab.className='tab'+(p===id?` act-${id}`:'');
   });
   if(p==='h') renderHistorie();
 }
 
-// ══ LOCALSTORAGE ════════════════════════════════════════════
-function laadOpgeslagen(){
-  try { return JSON.parse(localStorage.getItem('atw_dagen')||'{}'); } catch(e){ return {}; }
-}
-function slaAllesOp(dagen){ localStorage.setItem('atw_dagen', JSON.stringify(dagen)); }
-
-// ══ DAG BEHEER ══════════════════════════════════════════════
-let tLog=[], kLog=[];
-const tLbl={rij:'🚌 Rijtijd',werk:'💼 Werktijd',pauze:'☕ Pauze',rust:'🛏 Rusttijd'};
-const kLbl={werk:'🎓 Werktijd CBR',pauze:'☕ Pauze'};
-
-function huidigeDatum(){
-  // Beide datumvelden synchroon houden
-  const vt = document.getElementById('t-datum').value;
-  return vt || vandaagISO();
-}
-
-function syncDatum(iso){
-  document.getElementById('t-datum').value = iso;
-  document.getElementById('k-datum').value = iso;
-}
-
-function slaOpDag(){
-  const datum = huidigeDatum();
-  const dagen = laadOpgeslagen();
-  // bereken totalen
-  let tRij=0,tWerk=0,tPauze=0;
-  tLog.forEach(r=>{ if(r.type==='rij') tRij+=r.duur; if(r.type==='werk') tWerk+=r.duur; if(r.type==='pauze') tPauze+=r.duur; });
-  let kWerk=0,kPauze=0;
-  kLog.forEach(r=>{ if(r.type==='werk') kWerk+=r.duur; if(r.type==='pauze') kPauze+=r.duur; });
-  dagen[datum] = { datum, tLog, kLog, tRij, tWerk: tRij+tWerk, tPauze, kWerk, kPauze };
-  slaAllesOp(dagen);
-  const btn = event.target;
-  const orig = btn.textContent;
-  btn.textContent = '✓ Opgeslagen!';
-  setTimeout(()=>{ btn.textContent = orig; }, 1800);
-}
-
-function laadDag(){
-  const datum = document.getElementById('t-datum').value || document.getElementById('k-datum').value;
-  syncDatum(datum);
-  const dagen = laadOpgeslagen();
-  if(dagen[datum]){
-    tLog = dagen[datum].tLog || [];
-    kLog = dagen[datum].kLog || [];
-  } else {
-    tLog = []; kLog = [];
-  }
-  renderT(); renderK(); herbereken();
-}
-
-function nieuweDag(){
-  syncDatum(vandaagISO());
-  tLog=[]; kLog=[];
-  renderT(); renderK(); herbereken();
-}
-
-
-function voegToe(logArr, startId, eindId, typeId, renderFn){
-  const s=document.getElementById(startId).value, e=document.getElementById(eindId).value;
-  const tp=document.getElementById(typeId).value;
-  if(!s||!e){alert('Vul start- en eindtijd in.');return;}
-  let sm=s2m(s), em=s2m(e);
-  if(em<=sm) em+=1440;
-  const d=em-sm;
-  if(d<=0){alert('Eindtijd moet na starttijd liggen.');return;}
-  logArr.push({s,e,type:tp,duur:d,id:Date.now()});
-  renderFn(); herbereken();
-}
-
-function voegToeT(){ voegToe(tLog,'t-start','t-eind','t-type',renderT); }
-function voegToeK(){ voegToe(kLog,'k-start','k-eind','k-type',renderK); }
-
-function renderLog(logArr, elId, lblMap, delFn){
-  const el=document.getElementById(elId);
-  if(!logArr.length){el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.74rem;text-align:center;padding:16px 0;">Nog geen activiteiten</div>';return;}
-  el.innerHTML=logArr.map(r=>`
-    <div class="log-item">
-      <div><div class="li-info">${lblMap[r.type]} — ${m2s(r.duur)}</div><div class="li-sub">${r.s} → ${r.e}</div></div>
-      <button onclick="${delFn}(${r.id})">✕</button>
-    </div>`).join('');
-}
-function renderT(){ renderLog(tLog,'t-log',tLbl,'delT'); }
-function renderK(){ renderLog(kLog,'k-log',kLbl,'delK'); }
-function delT(id){ tLog=tLog.filter(r=>r.id!==id); renderT(); herbereken(); }
-function delK(id){ kLog=kLog.filter(r=>r.id!==id); renderK(); herbereken(); }
-function resetT(){ if(!confirm('Transport-logboek wissen?'))return; tLog=[]; renderT(); herbereken(); }
-function resetK(){ if(!confirm('CBR-logboek wissen?'))return; kLog=[]; renderK(); herbereken(); }
-
-function vulStandaarddag(){
-  if(kLog.length>0 && !confirm('CBR-logboek heeft al items. Overschrijven?')) return;
-  kLog = [];
-  // 07:50 – pauzetijd: werktijd blok 1
-  // Standaard: 07:50-12:30 werk, 12:30-13:00 pauze, 13:00-16:45 werk
-  // (pauzetijd niet vastgelegd, we splitsen het midden van de dag)
-  const blokken = [
-    { s:'07:50', e:'12:35', type:'werk' },
-    { s:'12:35', e:'13:05', type:'pauze' },
-    { s:'13:05', e:'16:45', type:'werk' },
-  ];
-  blokken.forEach((b,i) => {
-    const sm=s2m(b.s), em=s2m(b.e);
-    kLog.push({ s:b.s, e:b.e, type:b.type, duur:em-sm, id:Date.now()+i });
-  });
-  renderK(); herbereken();
-}
-
-// ══ HOOFD BEREKENING ════════════════════════════════════════
-function herbereken(){
-  // ── Transporttotalen ──
-  let tRij=0,tWerk=0,tPauze=0,tRust=0;
-  tLog.forEach(r=>{
-    if(r.type==='rij')   tRij+=r.duur;
-    if(r.type==='werk')  tWerk+=r.duur;
-    if(r.type==='pauze') tPauze+=r.duur;
-    if(r.type==='rust')  tRust+=r.duur;
-  });
-  const tTotWerk = tRij+tWerk; // rijtijd = werktijd onder ATW
-
-  const tWvRij  = parseFloat(document.getElementById('t-wv-rij').value||0)*60;
-  const tWvWerk = parseFloat(document.getElementById('t-wv-werk').value||0)*60;
-  const tWeekRij  = tWvRij+tRij;
-  const tWeekWerk = tWvWerk+tTotWerk;
-
-  // ── Kantoortotalen ──
-  let kWerk=0,kPauze=0;
-  kLog.forEach(r=>{
-    if(r.type==='werk')  kWerk+=r.duur;
-    if(r.type==='pauze') kPauze+=r.duur;
-  });
-  const kWv    = parseFloat(document.getElementById('k-wv').value||0)*60;
-  const kGem15 = parseFloat(document.getElementById('k-gem15').value||0)*60;
-  const kWeekWerk = kWv+kWerk;
-  const kGem16    = (kGem15*15+kWerk)/16;
-
-  // ── Gecombineerd (ATW) ──
-  const cDagWerk  = tTotWerk + kWerk;          // alle arbeid vandaag
-  const cWeekWerk = tWeekWerk + kWeekWerk;     // alle arbeid deze week
-  const cPauze    = tPauze + kPauze;           // alle pauzes vandaag
-  // gecombineerd 16-weken gemiddelde (gebruik kantoor gem als proxy voor totaal)
-  const cGem16    = (kGem15*15 + cDagWerk) / 16;
-
-  // ──────────────────────────────────────────────────────────
-  // TRANSPORT UI
-  // ──────────────────────────────────────────────────────────
-  document.getElementById('t-tot-rij').textContent   = m2s(tRij);
-  document.getElementById('t-tot-werk').textContent  = m2s(tTotWerk);
-  document.getElementById('t-tot-pauze').textContent = m2s(tPauze);
-  document.getElementById('t-tot-rust').textContent  = m2s(tRust);
-
-  gauge('t-g-dagrij',  'Dagrijtijd',                tRij,     9*60);
-  gauge('t-g-dagwerk', 'Dagwerktijd transport',      tTotWerk, 13*60);
-  gauge('t-g-weekrij', 'Weekrijtijd (incl. vorig)',  tWeekRij, 56*60);
-  gauge('t-g-weekwerk','Weekwerktijd (incl. vorig)', tWeekWerk,60*60);
-
-  const tM=[];
-  if(tRij>9*60)            tM.push({t:'danger',m:`⛔ Dagrijtijdlimiet overschreden! (${m2s(tRij)} > 9:00)`});
-  else if(tRij>9*60*.85)   tM.push({t:'warn',  m:`⚠️ Dagrijtijdlimiet nadert — nog ${m2s(9*60-tRij)} over.`});
-  if(tRij>9*60&&tRij<=10*60) tM.push({t:'warn',m:`⚠️ 10-uurs uitzondering actief (max. 2× per week).`});
-
-  if(tRij>=4.5*60&&tPauze<45)       tM.push({t:'danger',m:`⛔ Verplichte pauze (45 min) niet genomen na 4,5 u rijtijd! (nu: ${tPauze} min)`});
-  else if(tRij>=4.5*60*.8&&tPauze<45) tM.push({t:'warn', m:`⚠️ Bijna 4,5 u rijtijd — zorg voor 45 min pauze.`});
-
-  if(tTotWerk>13*60)          tM.push({t:'danger',m:`⛔ Dagwerktijdlimiet transport overschreden! (${m2s(tTotWerk)} > 13:00)`});
-  else if(tTotWerk>13*60*.85)  tM.push({t:'warn',  m:`⚠️ Dagwerktijdlimiet transport nadert — nog ${m2s(13*60-tTotWerk)} over.`});
-  if(tWeekRij>56*60)           tM.push({t:'danger',m:`⛔ Weekrijtijdlimiet overschreden! (${m2s(tWeekRij)} > 56:00)`});
-  else if(tWeekRij>56*60*.85)   tM.push({t:'warn',  m:`⚠️ Weekrijtijdlimiet nadert — nog ${m2s(56*60-tWeekRij)} over.`});
-  if(tRust>0&&tRust<9*60) tM.push({t:'warn',m:`⚠️ Rusttijd is ${m2s(tRust)} — minimum is 9 u (verkort) of 11 u normaal.`});
-
-  toonM('t-alerts', tM, tLog.length>0);
-
-  // ──────────────────────────────────────────────────────────
-  // KANTOOR UI
-  // ──────────────────────────────────────────────────────────
-  document.getElementById('k-tot-werk').textContent  = m2s(kWerk);
-  document.getElementById('k-tot-pauze').textContent = m2s(kPauze);
-  document.getElementById('k-tot-netto').textContent = m2s(kWerk);
-  document.getElementById('k-tot-week').textContent  = m2s(kWeekWerk);
-
-  gauge('k-g-dag',  'Dagwerktijd CBR',             kWerk,    12*60);
-  gauge('k-g-week', 'Weekwerktijd CBR (incl.vorig)',kWeekWerk,60*60);
-  gauge('k-g-gem',  'Gem. 16-weken CBR',           kGem16,   48*60);
-
-  const kM=[];
-  if(kWerk>12*60)           kM.push({t:'danger',m:`⛔ Dagwerktijdlimiet CBR overschreden! (${m2s(kWerk)} > 12:00)`});
-  else if(kWerk>12*60*.85)   kM.push({t:'warn',  m:`⚠️ Dagwerktijdlimiet CBR nadert — nog ${m2s(12*60-kWerk)} over.`});
-  if(kWerk>5.5*60&&kPauze<30) kM.push({t:'danger',m:`⛔ Bij meer dan 5,5 u werk is 30 min pauze verplicht! (nu: ${kPauze} min)`});
-  else if(kWerk>5*60&&kPauze<30) kM.push({t:'warn',m:`⚠️ Bijna 5,5 u werk — zorg straks voor 30 min pauze.`});
-  if(kWerk>10*60&&kPauze<45) kM.push({t:'warn',m:`⚠️ Bij meer dan 10 u werk is 45 min totale pauze vereist.`});
-  if(kWeekWerk>60*60)          kM.push({t:'danger',m:`⛔ Weekwerktijdlimiet CBR overschreden! (${m2s(kWeekWerk)} > 60:00)`});
-  else if(kWeekWerk>60*60*.85)  kM.push({t:'warn',  m:`⚠️ Weekwerktijdlimiet CBR nadert — nog ${m2s(60*60-kWeekWerk)} over.`});
-  if(kGem16>48*60) kM.push({t:'warn',m:`⚠️ Gemiddelde over 16 weken boven ATW-norm van 48 u (${m2s(kGem16)}).`});
-
-  toonM('k-alerts', kM, kLog.length>0);
-
-  // ──────────────────────────────────────────────────────────
-  // GECOMBINEERDE ATW-BALK
-  // ──────────────────────────────────────────────────────────
-  gauge('c-gauge-dag',   `Dag — bus (${m2s(tTotWerk)}) + CBR (${m2s(kWerk)})`, cDagWerk,  12*60);
-  gauge('c-gauge-week',  `Week — bus + CBR samen`,                              cWeekWerk, 60*60);
-  gauge('c-gauge-gem',   `Gem. 16 weken — gecombineerd`,                                 cGem16,    48*60);
-  gauge('c-gauge-pauze', `Pauze vandaag — alle arbeid samen`,                            cPauze,    60); // 60 min is ruime referentie
-
-  const cM=[];
-  const heeftData = tLog.length>0 || kLog.length>0;
-
-  // Gecombineerde dagwerktijdcheck (ATW max 12 u voor kantoor, maar transport heeft eigen max 13u)
-  // De ATW stelt geen gecombineerd dagmaximum per se, maar bij >12u totaal zit je al boven kantoor-norm
-  if(cDagWerk>13*60)          cM.push({t:'danger',m:`⛔ Gecombineerde dagwerktijd overschrijdt 13 u! (${m2s(cDagWerk)}) — controleer of dit binnen uw CAO past.`});
-  else if(cDagWerk>12*60)      cM.push({t:'warn',  m:`⚠️ Gecombineerde dagwerktijd is ${m2s(cDagWerk)} — boven 12 u, let op ATW-grenzen.`});
-  else if(cDagWerk>12*60*.85)  cM.push({t:'warn',  m:`⚠️ Gecombineerde dagwerktijd nadert 12 u — nog ${m2s(12*60-cDagWerk)} over.`});
-
-  // Gecombineerde weekcheck
-  if(cWeekWerk>60*60)          cM.push({t:'danger',m:`⛔ Gecombineerde weekwerktijd overschreden! (${m2s(cWeekWerk)} > 60:00)`});
-  else if(cWeekWerk>60*60*.85)  cM.push({t:'warn',  m:`⚠️ Gecombineerde weekwerktijdlimiet nadert — nog ${m2s(60*60-cWeekWerk)} over.`});
-
-  // Gecombineerde gem 16 weken
-  if(cGem16>48*60) cM.push({t:'warn',m:`⚠️ Gecombineerd gemiddelde over 16 weken (${m2s(cGem16)}) overschrijdt ATW-norm van 48 u.`});
-
-  // Pauzecheck gecombineerd
-  if(cDagWerk>5.5*60 && cPauze<30) cM.push({t:'danger',m:`⛔ Meer dan 5,5 u arbeid vandaag — minimaal 30 min pauze verplicht! (totaal pauze: ${cPauze} min)`});
-  else if(cDagWerk>5*60 && cPauze<30) cM.push({t:'warn',m:`⚠️ Bijna 5,5 u totale arbeid — zorg voor 30 min pauze.`});
-  if(cDagWerk>10*60 && cPauze<45) cM.push({t:'warn',m:`⚠️ Meer dan 10 u arbeid — 45 min totale pauze vereist.`});
-
-  // Dubbele baan signalering
-  if(tLog.length>0 && kLog.length>0){
-    cM.push({t:'warn',m:`ℹ️ Beide dienstverbanden actief (bus + CBR). Gecombineerde arbeid telt mee voor alle ATW-limieten.`});
-  }
-
-  toonM('c-alerts', cM, heeftData);
-}
-
-
-// ══ HISTORIE ════════════════════════════════════════════════
-function renderHistorie(){
-  const periodeVal = document.getElementById('hist-periode').value;
-  const dagen = laadOpgeslagen();
-  let keys = Object.keys(dagen).sort().reverse(); // nieuwste eerst
-  if(periodeVal !== 'all'){
-    const nDagen = parseInt(periodeVal);
-    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
-    const grensISO = grens.toISOString().slice(0,10);
-    keys = keys.filter(k => k >= grensISO);
-  }
-  const el = document.getElementById('hist-lijst');
-  if(!keys.length){
-    el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.74rem;text-align:center;padding:24px 0;">Geen opgeslagen dagen in deze periode.</div>';
-    return;
-  }
-  el.innerHTML = keys.map(iso => {
-    const d = dagen[iso];
-    const totaalWerk = (d.tWerk||0) + (d.kWerk||0);
-    const totaalPauze = (d.tPauze||0) + (d.kPauze||0);
-    const label = datumLabel(iso);
-    const heeftBus = (d.tLog||[]).length > 0;
-    const heeftCBR = (d.kLog||[]).length > 0;
-    return `<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:0.9rem;color:var(--text);">${label}</div>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          ${heeftBus?`<span style="background:#f0a50020;border:1px solid #f0a50050;color:#f0a500;border-radius:5px;font-family:'DM Mono',monospace;font-size:0.62rem;padding:2px 7px;">🚌 Bus</span>`:''}
-          ${heeftCBR?`<span style="background:#3b82f620;border:1px solid #3b82f650;color:#93c5fd;border-radius:5px;font-family:'DM Mono',monospace;font-size:0.62rem;padding:2px 7px;">🎓 CBR</span>`:''}
-          <button onclick="laadDagDirect('${iso}')" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;">📂 Laden</button>
-          <button onclick="verwijderDag('${iso}')" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;">🗑</button>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-        <div style="text-align:center;">
-          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--at);">${m2s(d.tWerk||0)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Bus werk</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--ak);">${m2s(d.kWerk||0)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">CBR werk</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:#a855f7;">${m2s(totaalWerk)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Totaal</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:800;color:var(--muted);">${m2s(totaalPauze)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;">Pauze</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function laadDagDirect(iso){
-  syncDatum(iso);
-  const dagen = laadOpgeslagen();
-  if(dagen[iso]){ tLog=dagen[iso].tLog||[]; kLog=dagen[iso].kLog||[]; }
-  else { tLog=[]; kLog=[]; }
-  renderT(); renderK(); herbereken();
-  toonPanel('t');
-}
-
-function verwijderDag(iso){
-  if(!confirm(`Dag ${datumLabel(iso)} verwijderen?`)) return;
-  const dagen = laadOpgeslagen();
-  delete dagen[iso];
-  slaAllesOp(dagen);
-  renderHistorie();
-}
-
-function printHistorie(){
-  const periodeVal = document.getElementById('hist-periode').value;
-  const dagen = laadOpgeslagen();
-  let keys = Object.keys(dagen).sort().reverse();
-  if(periodeVal !== 'all'){
-    const nDagen = parseInt(periodeVal);
-    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
-    keys = keys.filter(k => k >= grens.toISOString().slice(0,10));
-  }
-  if(!keys.length){ alert('Geen gegevens om af te drukken.'); return; }
-
-  const periodeLabel = periodeVal==='all'?'Alle dagen':`Laatste ${periodeVal} dagen`;
-  let totBusWerk=0, totCBRWerk=0, totPauze=0;
-  keys.forEach(k=>{ const d=dagen[k]; totBusWerk+=(d.tWerk||0); totCBRWerk+=(d.kWerk||0); totPauze+=(d.tPauze||0)+(d.kPauze||0); });
-
-  const rijen = keys.map(iso => {
-    const d = dagen[iso];
-    const totaal = (d.tWerk||0)+(d.kWerk||0);
-    const pauze = (d.tPauze||0)+(d.kPauze||0);
-    return `<tr>
-      <td>${datumLabel(iso)}</td>
-      <td>${m2s(d.tRij||0)}</td>
-      <td>${m2s(d.tWerk||0)}</td>
-      <td>${m2s(d.kWerk||0)}</td>
-      <td><strong>${m2s(totaal)}</strong></td>
-      <td>${m2s(pauze)}</td>
-    </tr>`;
-  }).join('');
-
-  const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
-  <title>Arbeidstijden uitdraai</title>
-  <style>
-    body { font-family: Arial, sans-serif; font-size: 11pt; margin: 20mm; color: #111; }
-    h1 { font-size: 14pt; margin-bottom: 4px; }
-    p.sub { font-size: 9pt; color: #666; margin-bottom: 16px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f0f0f0; text-align: left; padding: 6px 8px; font-size: 9pt; border-bottom: 2px solid #ccc; }
-    td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; font-size: 10pt; }
-    tr:nth-child(even) td { background: #fafafa; }
-    tfoot td { font-weight: bold; border-top: 2px solid #999; background: #f5f5f5; }
-    @media print { body { margin: 10mm; } }
-  </style></head><body>
-  <h1>⏱ Arbeidstijden Tracker — Uitdraai</h1>
-  <p class="sub">Periode: ${periodeLabel} · Afgedrukt op: ${new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
-  <table>
-    <thead><tr><th>Datum</th><th>Rijtijd bus</th><th>Werktijd bus</th><th>Werktijd CBR</th><th>Totaal werk</th><th>Pauze</th></tr></thead>
-    <tbody>${rijen}</tbody>
-    <tfoot><tr><td>Totaal (${keys.length} dagen)</td><td></td><td>${m2s(totBusWerk)}</td><td>${m2s(totCBRWerk)}</td><td>${m2s(totBusWerk+totCBRWerk)}</td><td>${m2s(totPauze)}</td></tr></tfoot>
-  </table>
-  <script>window.onload=()=>window.print();<\/script></body></html>`;
-
-  const w = window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-}
-
-function exportCSV(){
-  const periodeVal = document.getElementById('hist-periode').value;
-  const dagen = laadOpgeslagen();
-  let keys = Object.keys(dagen).sort();
-  if(periodeVal !== 'all'){
-    const nDagen = parseInt(periodeVal);
-    const grens = new Date(); grens.setDate(grens.getDate() - nDagen);
-    keys = keys.filter(k => k >= grens.toISOString().slice(0,10));
-  }
-  if(!keys.length){ alert('Geen gegevens om te exporteren.'); return; }
-  const header = 'Datum;Dag;Rijtijd bus (min);Werktijd bus (min);Pauze bus (min);Werktijd CBR (min);Pauze CBR (min);Totaal werk (min);Totaal pauze (min)\n';
-  const rijen = keys.map(iso => {
-    const d = dagen[iso];
-    const dag = dagNamen[new Date(iso+'T00:00:00').getDay()];
-    const totaal = (d.tWerk||0)+(d.kWerk||0);
-    const pauze = (d.tPauze||0)+(d.kPauze||0);
-    return `${iso};${dag};${d.tRij||0};${d.tWerk||0};${d.tPauze||0};${d.kWerk||0};${d.kPauze||0};${totaal};${pauze}`;
-  }).join('\n');
-  const blob = new Blob(['\uFEFF'+header+rijen], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `arbeidstijden_${keys[0]}_tm_${keys[keys.length-1]}.csv`;
-  a.click();
-}
-
-
-
-// ══ DIENSTEN DATABASE ═══════════════════════════════════════
-// Alle diensten uit het dienstenboek Den Hoorn zondag 04/01/2026
-// type: 'rij' = rijtijd, 'werk' = andere arbeid, 'pauze' = pauze
+// ══ DIENST DATABASE ════════════════════════════════════════
 const dienstenDatabase = {
   '4701': { start:'07:31', eind:'16:16', blokken:[
     {s:'07:31',e:'07:36',type:'werk',label:'Opstaptijd'},
@@ -1840,210 +1423,402 @@ const dienstenDatabase = {
   ]},
 };
 
-// ══ DIENST NUMMER LOOKUP ════════════════════════════════════
-function laadDienstNummer(){
-  const nr = document.getElementById('dienst-nr').value.trim().replace(/\D/g,'');
-  const status = document.getElementById('import-status');
-  const lijst = document.getElementById('import-resultaten');
-  const acties = document.getElementById('import-acties');
+// ══ DIENST INLADEN ═════════════════════════════════════════
+function laadDienst(){
+  const nr = document.getElementById('inp-dienst').value.trim().replace(/\D/g,'');
+  const datum = document.getElementById('inp-datum').value || vandaagISO();
+  const status = document.getElementById('dienst-status');
 
   if(!nr){ status.textContent='⚠️ Vul een dienstnummer in.'; return; }
-
   const dienst = dienstenDatabase[nr];
-  if(!dienst){
-    status.textContent=`❌ Dienst ${nr} niet gevonden in het dienstenboek.`;
-    lijst.innerHTML=''; acties.style.display='none';
-    return;
-  }
+  if(!dienst){ status.textContent=`❌ Dienst ${nr} niet gevonden.`; return; }
 
-  // Zet importData voor gebruik door voegImportToe()
-  importData = dienst.blokken.map(b => ({
-    start: b.s, eind: b.e, type: b.type, label: b.label
-  }));
-
-  // Toon resultaten
-  const impLbl2 = { rij:'🚌 Rijtijd', werk:'💼 Andere arbeid', pauze:'☕ Pauze' };
-  status.textContent = `✓ Dienst ${nr} gevonden: ${dienst.start}–${dienst.eind} · ${importData.length} blokken`;
-  lijst.innerHTML = importData.map((item,i) =>
-    `<div class="import-item">
-      <div>
-        <div class="ii-label">${item.label}</div>
-        <div class="ii-sub">${item.start} → ${item.eind}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span class="ii-badge ${item.type}">${impLbl2[item.type]}</span>
-        <select onchange="importData[${i}].type=this.value" style="width:auto;margin:0;padding:3px 6px;font-size:0.68rem;background:var(--panel);">
-          <option value="rij"   ${item.type==='rij'  ?'selected':''}>Rijtijd</option>
-          <option value="werk"  ${item.type==='werk' ?'selected':''}>Andere arbeid</option>
-          <option value="pauze" ${item.type==='pauze'?'selected':''}>Pauze</option>
-        </select>
-      </div>
-    </div>`
-  ).join('');
-  acties.style.display = 'flex';
-}
-
-// ══ TEKST IMPORT ════════════════════════════════════════════
-let importData = [];
-
-function syncImportDatum(){
-  const d = document.getElementById('t-datum').value || vandaagISO();
-  document.getElementById('import-datum').value = d;
-}
-
-// Parser: zet platte tekst om naar tijdsblokken
-function verwerkTekst(){
-  const tekst = document.getElementById('import-tekst').value.trim();
-  if(!tekst){ document.getElementById('import-status').textContent='⚠️ Vul eerst tekst in.'; return; }
-
-  importData = [];
-  const regels = tekst.split('\n').map(r=>r.trim()).filter(r=>r.length>2);
-
-  // Tijdspatronen:
-  // "08:18-10:55 Rijtijd ..." of "08:18 - 10:55 Rijtijd ..."
-  // "08:12 Opstaptijd" (alleen starttijd, eindtijd = volgende starttijd)
-  const tijdBlok = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\s*(.*)/;
-  const tijdEnkel = /^(\d{1,2}:\d{2})\s+(.*)/;
-
-  // Eerste pass: extract alle tijden en labels
-  const gevonden = [];
-  for(const regel of regels){
-    const mb = tijdBlok.exec(regel);
-    if(mb){
-      gevonden.push({ start: mb[1], eind: mb[2], label: mb[3].trim(), heeftEind: true });
-      continue;
-    }
-    const me = tijdEnkel.exec(regel);
-    if(me){
-      gevonden.push({ start: me[1], eind: null, label: me[2].trim(), heeftEind: false });
-    }
-  }
-
-  // Tweede pass: vul eindtijden in voor enkeltijdsregels
-  for(let i=0; i<gevonden.length; i++){
-    if(!gevonden[i].heeftEind){
-      // Eindtijd = starttijd van volgende
-      if(i+1 < gevonden.length){
-        gevonden[i].eind = gevonden[i+1].start;
-      } else {
-        gevonden[i].eind = gevonden[i].start; // laatste regel zonder eindtijd overslaan
-        continue;
-      }
-    }
-    const sm = s2m(gevonden[i].start), em = s2m(gevonden[i].eind);
-    if(em <= sm) continue; // skip als 0 of negatief
-    gevonden[i].type = classificeer(gevonden[i].label);
-    importData.push(gevonden[i]);
-  }
-
-  toonImportResultaten();
-}
-
-function classificeer(label){
-  const l = label.toLowerCase();
-  // Pauze
-  if(/pauze|rust|break|joinup/.test(l)) return 'pauze';
-  // Rijtijd
-  if(/rij|lijn|route|omloop|mat|pull.?out|pull-out|materiaal/.test(l)) return 'rij';
-  // Opstap/afstap/buswissel/andere arbeid
-  if(/opstap|afstap|wissel|administratie|kantoor|briefing|debriefing|werk|examin|cbr|theorie/.test(l)) return 'werk';
-  // Default: als het een tijdsblok is met inhoud, waarschijnlijk rijtijd
-  return 'rij';
-}
-
-const impLbl = { rij:'🚌 Rijtijd', werk:'💼 Andere arbeid', pauze:'☕ Pauze' };
-
-function toonImportResultaten(){
-  const status = document.getElementById('import-status');
-  const lijst = document.getElementById('import-resultaten');
-  const acties = document.getElementById('import-acties');
-
-  if(!importData.length){
-    status.textContent = '⚠️ Geen tijdblokken herkend. Controleer het formaat.';
-    lijst.innerHTML = '';
-    acties.style.display = 'none';
-    return;
-  }
-
-  status.textContent = `✓ ${importData.length} activiteiten herkend — kies hieronder waarheen:`;
-  lijst.innerHTML = importData.map((item,i) => `
-    <div class="import-item">
-      <div>
-        <div class="ii-label">${item.label || '(geen omschrijving)'}</div>
-        <div class="ii-sub">${item.start} → ${item.eind} &nbsp;(${m2s(s2m(item.eind)-s2m(item.start))})</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span class="ii-badge ${item.type}">${impLbl[item.type]}</span>
-        <select onchange="importData[${i}].type=this.value;toonImportResultaten()" style="width:auto;margin:0;padding:3px 6px;font-size:0.68rem;background:var(--panel);">
-          <option value="rij"  ${item.type==='rij'  ?'selected':''}>Rijtijd</option>
-          <option value="werk" ${item.type==='werk' ?'selected':''}>Andere arbeid</option>
-          <option value="pauze"${item.type==='pauze'?'selected':''}>Pauze</option>
-        </select>
-      </div>
-    </div>`).join('');
-  acties.style.display = 'flex';
-}
-
-function voegImportToe(doel){
-  if(!importData.length) return;
-
-  // Datum uit import-datum veld
-  const datum = document.getElementById('import-datum').value || vandaagISO();
   syncDatum(datum);
-
-  // Laad bestaande dag (niet overschrijven!)
   const dagen = laadOpgeslagen();
-  if(dagen[datum]){
-    tLog = dagen[datum].tLog || [];
-    kLog = dagen[datum].kLog || [];
-  }
+  if(dagen[datum]){ logBus=dagen[datum].bus||[]; logCBR=dagen[datum].cbr||[]; logVr=dagen[datum].vr||[]; }
+  else { logBus=[]; logCBR=[]; logVr=[]; }
 
-  // Voeg toe aan juiste log
-  importData.forEach((item, i) => {
-    const sm = s2m(item.start);
-    let em = s2m(item.eind);
-    if(em <= sm) em += 1440;
-    const entry = { s: item.start, e: item.eind, type: item.type, duur: em-sm, id: Date.now()+i };
-    if(doel === 'bus') tLog.push(entry);
-    else kLog.push(entry);
+  // Voeg blokken toe aan buslogboek — map type naar nieuw systeem
+  dienst.blokken.forEach((b,i) => {
+    const sm=s2m(b.s), em0=s2m(b.e);
+    let em = em0 <= sm ? em0+1440 : em0;
+    const duur = em-sm;
+    if(duur<=0) return;
+    const type = b.type==='rij'?'rij-bus': b.type==='pauze'?'pauze':'werk-bus';
+    logBus.push({ s:b.s, e:b.e, type, duur, label:b.label, id:Date.now()+i });
   });
 
-  renderT(); renderK(); herbereken();
-
-  // Automatisch opslaan
-  slaOpDagStil(datum);
-
-  // Feedback
-  const doelNaam = doel==='bus' ? '🚌 Bus' : '🎓 CBR';
-  document.getElementById('import-status').textContent = `✓ ${importData.length} activiteiten toegevoegd aan ${doelNaam} op ${datumLabel(datum)}`;
-  document.getElementById('import-acties').style.display = 'none';
-  importData = [];
-
-  // Navigeer naar het juiste tabblad
-  toonPanel(doel === 'bus' ? 't' : 'k');
+  slaOpDag();
+  renderAlles();
+  status.textContent=`✓ Dienst ${nr} ingeladen: ${dienst.start}–${dienst.eind}`;
+  toonTab('t');
 }
 
-function slaOpDagStil(datum){
+// ══ HANDMATIGE TOEVOEGING ══════════════════════════════════
+function voegHandmatigToe(){
+  const s = document.getElementById('man-start').value;
+  const e = document.getElementById('man-eind').value;
+  const type = document.getElementById('man-type').value;
+  if(!s||!e){ return; }
+  let sm=s2m(s), em=s2m(e);
+  if(em<=sm) em+=1440;
+  const duur=em-sm;
+  if(duur<=0) return;
+  const datum = document.getElementById('inp-datum').value || vandaagISO();
+  syncDatum(datum);
   const dagen = laadOpgeslagen();
-  let tRij=0, tWerk=0, tPauze=0;
-  tLog.forEach(r=>{ if(r.type==='rij') tRij+=r.duur; if(r.type==='werk') tWerk+=r.duur; if(r.type==='pauze') tPauze+=r.duur; });
-  let kWerk=0, kPauze=0;
-  kLog.forEach(r=>{ if(r.type==='werk') kWerk+=r.duur; if(r.type==='pauze') kPauze+=r.duur; });
-  dagen[datum] = { datum, tLog:[...tLog], kLog:[...kLog], tRij, tWerk: tRij+tWerk, tPauze, kWerk, kPauze };
-  slaAllesOp(dagen);
+  if(dagen[datum]){ logBus=dagen[datum].bus||[]; logCBR=dagen[datum].cbr||[]; logVr=dagen[datum].vr||[]; }
+
+  const entry = { s, e, type, duur, label: typeLbl(type), id: Date.now() };
+  if(type.includes('cbr')) logCBR.push(entry);
+  else if(type.includes('vr')) logVr.push(entry);
+  else logBus.push(entry);
+
+  slaOpDag();
+  renderAlles();
 }
 
+function typeLbl(t){
+  const m={'rij-bus':'Rijtijd bus','werk-bus':'Arbeid bus','werk-cbr':'CBR examen','rij-vr':'Rijtijd vracht','werk-vr':'Arbeid vracht','pauze':'Pauze'};
+  return m[t]||t;
+}
 
-const t=nuT();
-['t-start','k-start'].forEach(id=>document.getElementById(id).value=t);
+// ══ CBR STANDAARDDAG ═══════════════════════════════════════
+function vulCBRStandaard(){
+  if(logCBR.length>0 && !confirm('CBR-logboek heeft al items. Overschrijven?')) return;
+  const datum = document.getElementById('inp-datum').value || vandaagISO();
+  syncDatum(datum);
+  logCBR=[];
+  const blokken=[
+    {s:'07:50',e:'12:35',type:'werk-cbr',label:'CBR examineren'},
+    {s:'12:35',e:'13:05',type:'pauze',label:'Pauze'},
+    {s:'13:05',e:'16:45',type:'werk-cbr',label:'CBR examineren'},
+  ];
+  blokken.forEach((b,i)=>{ const duur=s2m(b.e)-s2m(b.s); logCBR.push({...b,duur,id:Date.now()+i}); });
+  slaOpDag();
+  renderAlles();
+}
+
+// ══ LOG RENDER ═════════════════════════════════════════════
+const typeKleur = {'rij-bus':'var(--at)','werk-bus':'#f0a50080','werk-cbr':'var(--cbr)','rij-vr':'var(--vr)','werk-vr':'#a855f780','pauze':'var(--ok)'};
+
+function renderLog(lijst, elId){
+  const el=document.getElementById(elId);
+  if(!el) return;
+  if(!lijst.length){ el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.72rem;text-align:center;padding:14px 0;">Nog geen activiteiten</div>'; return; }
+  el.innerHTML=lijst.map((r,i)=>`
+    <div class="log-item">
+      <div>
+        <div class="li-lbl" style="color:${typeKleur[r.type]||'var(--text)'};">${r.label||typeLbl(r.type)}</div>
+        <div class="li-sub">${r.s} → ${r.e} &nbsp;(${m2s(r.duur)})</div>
+      </div>
+      <button onclick="verwijderEntry('${elId}',${i})">✕</button>
+    </div>`).join('');
+}
+
+function verwijderEntry(elId, idx){
+  if(elId==='log-bus') logBus.splice(idx,1);
+  else if(elId==='log-cbr') logCBR.splice(idx,1);
+  else if(elId==='log-vr') logVr.splice(idx,1);
+  slaOpDag();
+  renderAlles();
+}
+
+function resetLog(disc){
+  if(!confirm(`${disc.toUpperCase()} logboek wissen?`)) return;
+  if(disc==='bus') logBus=[];
+  else if(disc==='cbr') logCBR=[];
+  else if(disc==='vr') logVr=[];
+  slaOpDag();
+  renderAlles();
+}
+
+// ══ BEREKENINGEN ═══════════════════════════════════════════
+function berekenTotalen(){
+  let rijBus=0, werkBus=0, werkCBR=0, rijVr=0, werkVr=0, pauze=0;
+  logBus.forEach(r=>{
+    if(r.type==='rij-bus') rijBus+=r.duur;
+    else if(r.type==='werk-bus') werkBus+=r.duur;
+    else if(r.type==='pauze') pauze+=r.duur;
+  });
+  logCBR.forEach(r=>{
+    if(r.type==='werk-cbr') werkCBR+=r.duur;
+    else if(r.type==='pauze') pauze+=r.duur;
+  });
+  logVr.forEach(r=>{
+    if(r.type==='rij-vr') rijVr+=r.duur;
+    else if(r.type==='werk-vr') werkVr+=r.duur;
+    else if(r.type==='pauze') pauze+=r.duur;
+  });
+  const rijTot = rijBus+rijVr;
+  const werkTot = werkBus+werkCBR+werkVr;
+  const dagTot = rijTot+werkTot;
+  return {rijBus,werkBus,werkCBR,rijVr,werkVr,pauze,rijTot,werkTot,dagTot};
+}
+
+function herbereken(){
+  const t = berekenTotalen();
+
+  // Vorige dagen
+  const prevRijBus = Math.round((parseFloat(document.getElementById('prev-rij-bus').value)||0)*60);
+  const prevWerk   = Math.round((parseFloat(document.getElementById('prev-werk').value)||0)*60);
+  const prevGem15  = Math.round((parseFloat(document.getElementById('prev-gem15').value)||0)*60);
+
+  const weekRijBus = prevRijBus + t.rijBus;
+  const weekWerk   = prevWerk   + t.dagTot;
+  const gem16      = Math.round((prevGem15*15 + weekWerk)/16);
+
+  // ── Dashboard invullen ──
+  document.getElementById('d-rij-bus').textContent  = m2s(t.rijBus);
+  document.getElementById('d-werk-bus').textContent = m2s(t.werkBus);
+  document.getElementById('d-werk-cbr').textContent = m2s(t.werkCBR);
+  document.getElementById('d-rij-vr').textContent   = m2s(t.rijVr);
+  document.getElementById('d-werk-vr').textContent  = m2s(t.werkVr);
+  document.getElementById('d-pauze').textContent    = m2s(t.pauze);
+  document.getElementById('d-rij-tot').textContent  = m2s(t.rijTot);
+  document.getElementById('d-werk-tot').textContent = m2s(t.werkTot);
+  document.getElementById('d-dag-tot').textContent  = m2s(t.dagTot);
+
+  // Kleuren gecombineerde totalen
+  ['d-rij-tot','d-werk-tot','d-dag-tot'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.className='ds-val combo';
+  });
+
+  // ── Gauges ──
+  // Rijtijdenwet: max 9u dag, 56u week bus
+  const maxRijDag  = 9*60;
+  const maxRijWeek = 56*60;
+  // ATW: max 12u dag, 60u week
+  const maxWerkDag  = 12*60;
+  const maxWerkWeek = 60*60;
+
+  gauge('g-dag-rij',   `Rijtijd dag (bus)`, t.rijBus, maxRijDag);
+  gauge('g-week-rij',  `Rijtijd week (bus)`, weekRijBus, maxRijWeek);
+  gauge('g-dag-werk',  `Dagarbeid (ATW)`, t.dagTot, maxWerkDag);
+  gauge('g-week-werk', `Weekarbeid (ATW)`, weekWerk, maxWerkWeek);
+
+  // ── Resterende tellers ──
+  const restRijDag  = Math.max(0, maxRijDag  - t.rijBus);
+  const restRijWeek = Math.max(0, maxRijWeek - weekRijBus);
+  const restWerkDag = Math.max(0, maxWerkDag - t.dagTot);
+  const restWerkWeek= Math.max(0, maxWerkWeek- weekWerk);
+
+  // Pauze: EU 561 — 45 min per 4,5u rijtijd
+  const pauzeNodig = t.rijBus>0 ? Math.max(0, Math.ceil(t.rijBus/270)*45 - t.pauze) : 0;
+
+  const setRest = (id, val, warnBelow) => {
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.textContent = m2s(val);
+    el.className = `rest-val ${val<=0?'danger':val<warnBelow?'warn':'ok'}`;
+  };
+  setRest('r-rij-dag',   restRijDag,   60);
+  setRest('r-rij-week',  restRijWeek,  120);
+  setRest('r-werk-dag',  restWerkDag,  60);
+  setRest('r-werk-week', restWerkWeek, 120);
+
+  const rPauze=document.getElementById('r-pauze');
+  if(rPauze){
+    rPauze.textContent=`${pauzeNodig} min`;
+    rPauze.className=`rest-val ${pauzeNodig>0?'warn':'ok'}`;
+  }
+
+  berekenRust();
+  bouwMeldingen(t, weekRijBus, weekWerk, gem16, pauzeNodig, prevGem15);
+}
+
+// ══ RUSTTIJD ═══════════════════════════════════════════════
+function berekenRust(){
+  const prevEind = document.getElementById('prev-eind').value;
+
+  // Bepaal starttijd vandaag uit logboek
+  let allEntries = [...logBus,...logCBR,...logVr].filter(r=>r.s);
+  allEntries.sort((a,b)=>s2m(a.s)-s2m(b.s));
+  const startVandaag = allEntries.length ? allEntries[0].s : null;
+
+  const rustEl = document.getElementById('rust-uren');
+  const alertEl = document.getElementById('rust-alert');
+  const rRust = document.getElementById('r-rust');
+
+  if(!prevEind || !startVandaag){
+    rustEl.textContent='—';
+    rustEl.style.color='var(--muted)';
+    alertEl.innerHTML='';
+    if(rRust){ rRust.textContent='11:00'; rRust.className='rest-val ok'; }
+    return;
+  }
+
+  // Rust in minuten
+  let rust = s2m(startVandaag) - s2m(prevEind);
+  if(rust < 0) rust += 1440; // volgende dag
+  const rustH = m2s(rust);
+
+  rustEl.textContent = rustH + ' uur';
+
+  let alertHtml='';
+  if(rust < 9*60){
+    rustEl.style.color='var(--danger)';
+    alertHtml=`<div class="alert danger">⛔ Dagrust KRITIEK: slechts ${rustH} rust! Minimum is 9u (verkort) of 11u normaal.</div>`;
+    if(rRust){ rRust.textContent=m2s(9*60-rust)+' te kort'; rRust.className='rest-val danger'; }
+  } else if(rust < 11*60){
+    rustEl.style.color='var(--warn)';
+    alertHtml=`<div class="alert warn">⚠️ Verkorte dagrust: ${rustH}. Toegestaan (min. 9u), maar max 3× per week. Normale rust is 11u.</div>`;
+    if(rRust){ rRust.textContent=rustH; rRust.className='rest-val warn'; }
+  } else {
+    rustEl.style.color='var(--ok)';
+    alertHtml=`<div class="alert ok">✓ Dagrust voldoende: ${rustH} (≥ 11u).</div>`;
+    if(rRust){ rRust.textContent=rustH; rRust.className='rest-val ok'; }
+  }
+  alertEl.innerHTML=alertHtml;
+}
+
+// ══ MELDINGEN ══════════════════════════════════════════════
+function bouwMeldingen(t, weekRijBus, weekWerk, gem16, pauzeNodig, prevGem15){
+  const msgs=[];
+
+  if(!logBus.length && !logCBR.length && !logVr.length){
+    msgs.push({t:'ok',m:'Voer een dienst in om te controleren.'});
+  } else {
+    // Rijtijdenwet
+    if(t.rijBus > 9*60)      msgs.push({t:'danger',m:`⛔ Dagrijtijd overschreden! ${m2s(t.rijBus)} > 9:00`});
+    else if(t.rijBus > 8*60) msgs.push({t:'warn',  m:`⚠️ Let op: dagrijtijd ${m2s(t.rijBus)}. Verlengd naar 10u mag max 2× p/w.`});
+    if(weekRijBus > 56*60)   msgs.push({t:'danger',m:`⛔ Weekrijtijd bus overschreden! ${m2s(weekRijBus)} > 56:00`});
+    else if(weekRijBus > 50*60) msgs.push({t:'warn',m:`⚠️ Weekrijtijd bus nadert limiet: ${m2s(weekRijBus)} / 56:00`});
+
+    // ATW
+    if(t.dagTot > 12*60)     msgs.push({t:'danger',m:`⛔ Dagarbeid ATW overschreden! ${m2s(t.dagTot)} > 12:00`});
+    else if(t.dagTot > 10*60)msgs.push({t:'warn',  m:`⚠️ Dagarbeid nadert limiet: ${m2s(t.dagTot)} / 12:00`});
+    if(weekWerk > 60*60)     msgs.push({t:'danger',m:`⛔ Weekarbeid ATW overschreden! ${m2s(weekWerk)} > 60:00`});
+    else if(weekWerk > 54*60)msgs.push({t:'warn',  m:`⚠️ Weekarbeid nadert limiet: ${m2s(weekWerk)} / 60:00`});
+
+    // Gem 16 weken
+    if(gem16 > 48*60)        msgs.push({t:'danger',m:`⛔ Gemiddelde 16-weken ATW overschreden! ${m2s(gem16)} > 48:00/week`});
+    else if(gem16 > 45*60)   msgs.push({t:'warn',  m:`⚠️ Gemiddelde 16-weken ATW nadert: ${m2s(gem16)} / 48:00`});
+
+    // Pauze
+    if(pauzeNodig > 0)       msgs.push({t:'warn',  m:`⚠️ Nog ${pauzeNodig} min pauze nodig op basis van rijtijd (EU 561: 45 min per 4,5u).`});
+    else if(t.rijBus>0)      msgs.push({t:'ok',    m:`✓ Pauzeplicht bus voldaan (${m2s(t.pauze)} pauze).`});
+
+    // Pauze ATW bus+cbr
+    if(t.dagTot > 5.5*60 && t.pauze < 30) msgs.push({t:'warn',m:`⚠️ Bij >5,5u arbeid: 30 min pauze verplicht (ATW). Nu: ${t.pauze} min.`});
+
+    // Alles ok?
+    if(msgs.length===0) msgs.push({t:'ok',m:'✓ Alle limieten binnen de wettelijke normen.'});
+
+    // Info combinatie
+    if((logBus.length||logVr.length) && logCBR.length)
+      msgs.push({t:'info',m:`ℹ️ Gecombineerde dienst: Bus/Vracht + CBR. Alle arbeid telt mee voor ATW-totaal.`});
+  }
+
+  document.getElementById('alle-meldingen').innerHTML = msgs.map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('');
+}
+
+// ══ RENDER ALLES ═══════════════════════════════════════════
+function renderAlles(){
+  renderLog(logBus, 'log-bus');
+  renderLog(logCBR, 'log-cbr');
+  renderLog(logVr,  'log-vr');
+  herbereken();
+}
+
+// ══ HISTORIE ═══════════════════════════════════════════════
+function renderHistorie(){
+  const periodeVal = document.getElementById('hist-periode').value;
+  const dagen = laadOpgeslagen();
+  let keys = Object.keys(dagen).sort().reverse();
+  if(periodeVal!=='all'){
+    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
+    const grensISO=grens.toISOString().slice(0,10);
+    keys=keys.filter(k=>k>=grensISO);
+  }
+  const el=document.getElementById('hist-lijst');
+  if(!keys.length){ el.innerHTML='<div style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:0.72rem;text-align:center;padding:18px 0;">Geen opgeslagen dagen in deze periode.</div>'; return; }
+
+  el.innerHTML=keys.map(iso=>{
+    const d=dagen[iso];
+    const rij=(d.rijBus||0)+(d.rijVr||0);
+    const werk=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
+    const tot=(d.dagTot)||rij+werk;
+    return `<div class="hist-item">
+      <div class="hist-datum">${datumLabel(iso)}</div>
+      <div class="hist-grid">
+        <div class="hist-cell"><div class="hist-val" style="color:var(--at);">${m2s(d.rijBus||0)}</div><div class="hist-sub">🚌 Rij bus</div></div>
+        <div class="hist-cell"><div class="hist-val" style="color:var(--cbr);">${m2s(d.werkCBR||0)}</div><div class="hist-sub">🎓 CBR</div></div>
+        <div class="hist-cell"><div class="hist-val" style="color:var(--vr);">${m2s((d.rijVr||0)+(d.werkVr||0))}</div><div class="hist-sub">🚛 Vracht</div></div>
+        <div class="hist-cell"><div class="hist-val" style="color:#22d3ee;">${m2s(tot)}</div><div class="hist-sub">Totaal</div></div>
+      </div>
+      <div class="hist-actions">
+        <button onclick="laadDagDirect('${iso}')">📂 Laden</button>
+        <button onclick="verwijderDag('${iso}')" style="color:var(--danger);">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function laadDagDirect(iso){
+  syncDatum(iso);
+  laadDag();
+  toonTab('t');
+}
+function verwijderDag(iso){
+  if(!confirm(`Dag ${datumLabel(iso)} verwijderen?`)) return;
+  const dagen=laadOpgeslagen(); delete dagen[iso]; slaAllesOp(dagen); renderHistorie();
+}
+
+function printHistorie(){
+  const periodeVal=document.getElementById('hist-periode').value;
+  const dagen=laadOpgeslagen();
+  let keys=Object.keys(dagen).sort().reverse();
+  if(periodeVal!=='all'){
+    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
+    keys=keys.filter(k=>k>=grens.toISOString().slice(0,10));
+  }
+  if(!keys.length){alert('Geen gegevens.');return;}
+  let totRij=0,totWerk=0;
+  const rijen=keys.map(iso=>{
+    const d=dagen[iso];
+    const rij=(d.rijBus||0)+(d.rijVr||0);
+    const werk=(d.werkBus||0)+(d.werkCBR||0)+(d.werkVr||0);
+    totRij+=rij; totWerk+=werk;
+    return `<tr><td>${datumLabel(iso)}</td><td>${m2s(d.rijBus||0)}</td><td>${m2s(d.werkBus||0)}</td><td>${m2s(d.werkCBR||0)}</td><td>${m2s((d.rijVr||0)+(d.werkVr||0))}</td><td><strong>${m2s(rij+werk)}</strong></td></tr>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"><title>Arbeidstijden uitdraai</title>
+  <style>body{font-family:Arial,sans-serif;font-size:11pt;margin:20mm;}table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:6px 8px;border-bottom:2px solid #ccc;font-size:9pt;text-align:left;}td{padding:5px 8px;border-bottom:1px solid #e0e0e0;}tfoot td{font-weight:bold;border-top:2px solid #999;}</style>
+  </head><body><h1>Arbeidstijden Uitdraai</h1><p>Periode: laatste ${periodeVal==='all'?'alle':periodeVal} dagen · ${new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+  <table><thead><tr><th>Datum</th><th>🚌 Rijtijd bus</th><th>💼 Arbeid bus</th><th>🎓 CBR</th><th>🚛 Vracht</th><th>Totaal</th></tr></thead>
+  <tbody>${rijen}</tbody><tfoot><tr><td>Totaal (${keys.length} dagen)</td><td colspan="3"></td><td></td><td>${m2s(totRij+totWerk)}</td></tr></tfoot></table>
+  <script>window.onload=()=>window.print();<\/script></body></html>`;
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+function exportCSV(){
+  const periodeVal=document.getElementById('hist-periode').value;
+  const dagen=laadOpgeslagen();
+  let keys=Object.keys(dagen).sort();
+  if(periodeVal!=='all'){
+    const grens=new Date(); grens.setDate(grens.getDate()-parseInt(periodeVal));
+    keys=keys.filter(k=>k>=grens.toISOString().slice(0,10));
+  }
+  if(!keys.length){alert('Geen gegevens.');return;}
+  const header='Datum;Dag;Rijtijd bus (min);Arbeid bus (min);CBR (min);Rijtijd vracht (min);Arbeid vracht (min);Pauze (min);Totaal (min)\n';
+  const rijen=keys.map(iso=>{
+    const d=dagen[iso];
+    const dag=dagNamen[new Date(iso+'T00:00:00').getDay()];
+    return `${iso};${dag};${d.rijBus||0};${d.werkBus||0};${d.werkCBR||0};${d.rijVr||0};${d.werkVr||0};${d.pauze||0};${d.dagTot||0}`;
+  }).join('\n');
+  const blob=new Blob(['\uFEFF'+header+rijen],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`arbeidstijden_${keys[0]}_tm_${keys[keys.length-1]}.csv`; a.click();
+}
+
+// ══ INIT ═══════════════════════════════════════════════════
 syncDatum(vandaagISO());
-syncImportDatum();
-herbereken();
+laadDag();
+document.getElementById('man-start').value = nuT();
+document.getElementById('man-eind').value  = nuT();
 
-// PWA service worker registratie
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
