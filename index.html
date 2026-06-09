@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⏱️ Arbeidstijden Tracker v3.5-G</title>
+<style>
+:root {
+--bg-color: #121824;
+--card-color: #1e293b;
+--text-color: #f8fafc;
+--accent-bus: #eab308;
+--accent-cbr: #3b82f6;
+--accent-vracht: #ef4444;
+--success: #22c55e;
+--danger: #ef4444;
+--version-color: #a78bfa;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background-color: var(--bg-color);
+color: var(--text-color);
+margin: 0;
+padding: 15px;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.container {
+width: 100%;
+max-width: 500px;
+}
+
+h1 {
+text-align: center;
+font-size: 1.5rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--accent-bus);
+margin-bottom: 5px;
+}
+
+.version {
+text-align: center;
+font-size: 0.8rem;
+opacity: 0.6;
+margin-bottom: 20px;
+font-weight: bold;
+color: var(--version-color);
+}
+
+/* Discipline Knoppen */
+.discipline-selector {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.btn-discipline {
+background-color: var(--card-color);
+border: 2px solid transparent;
+color: var(--text-color);
+padding: 12px 5px;
+border-radius: 8px;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.2s;
+font-size: 0.9rem;
+}
+
+.btn-discipline.active[data-type="bus"] { border-color: var(--accent-bus); background-color: rgba(234, 179, 8, 0.1); }
+.btn-discipline.active[data-type="cbr"] { border-color: var(--accent-cbr); background-color: rgba(59, 130, 246, 0.1); }
+.btn-discipline.active[data-type="vracht"] { border-color: var(--accent-vracht); background-color: rgba(239, 68, 68, 0.1); }
+
+/* Invoerblok */
+.card {
+background-color: var(--card-color);
+border-radius: 12px;
+padding: 15px;
+margin-bottom: 20px;
+box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+}
+
+label {
+display: block;
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-bottom: 5px;
+opacity: 0.8;
+}
+
+input, select {
+width: 100%;
+padding: 10px;
+background-color: var(--bg-color);
+border: 1px solid #334155;
+border-radius: 6px;
+color: var(--text-color);
+font-size: 1rem;
+box-sizing: border-box;
+margin-bottom: 15px;
+}
+
+.invoer-paneel {
+display: none;
+}
+
+.invoer-paneel.active {
+display: block;
+}
+
+.btn-action {
+width: 100%;
+background-color: #06b6d4;
+color: #fff;
+border: none;
+padding: 12px;
+border-radius: 6px;
+font-weight: bold;
+font-size: 1rem;
+cursor: pointer;
+}
+
+/* Totalen & Dashboard */
+.grid-2 {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-bottom: 10px;
+}
+
+.stat-box {
+background-color: rgba(255,255,255,0.03);
+border: 1px solid #334155;
+border-radius: 8px;
+padding: 10px;
+text-align: center;
+}
+
+.stat-val {
+font-size: 1.2rem;
+font-weight: bold;
+margin-top: 5px;
+}
+
+.text-green { color: var(--success); }
+.text-yellow { color: var(--accent-bus); }
+.text-red { color: var(--danger); }
+
+.alert-box {
+background-color: rgba(34, 197, 94, 0.1);
+border: 1px solid var(--success);
+color: var(--success);
+padding: 10px;
+border-radius: 6px;
+text-align: center;
+font-size: 0.9rem;
+margin-top: 10px;
+}
+
+/* HISTORIE SECTIE */
+.history-title {
+font-size: 1.1rem;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin: 25px 0 10px 0;
+opacity: 0.9;
+}
+
+.history-card {
+background-color: rgba(30, 41, 59, 0.7);
+border: 1px solid #334155;
+border-radius: 10px;
+padding: 12px;
+margin-bottom: 10px;
+}
+
+.history-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+border-bottom: 1px solid rgba(255,255,255,0.1);
+padding-bottom: 6px;
+}
+
+.history-date {
+font-weight: bold;
+font-size: 0.95rem;
+}
+
+.tag-container {
+display: flex;
+gap: 5px;
+align-items: center;
+}
+
+.tag {
+font-size: 0.75rem;
+padding: 2px 6px;
+border-radius: 4px;
+font-weight: bold;
+}
+.tag-bus { background-color: rgba(234, 179, 8, 0.2); color: var(--accent-bus); }
+.tag-cbr { background-color: rgba(59, 130, 246, 0.2); color: var(--accent-cbr); }
+.tag-vracht { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-vracht); }
+
+.tag-version {
+background-color: rgba(167, 139, 250, 0.15);
+color: var(--version-color);
+border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.history-meta {
+font-size: 0.8rem;
+opacity: 0.7;
+margin-bottom: 8px;
+}
+
+.grid-4 {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 5px;
+text-align: center;
+margin-bottom: 10px;
+}
+
+.mini-stat {
+background-color: rgba(0,0,0,0.2);
+padding: 5px;
+border-radius: 4px;
+font-size: 0.75rem;
+}
+.mini-stat div { font-weight: bold; font-size: 0.85rem; margin-top: 2px; }
+
+.history-actions {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 8px;
+border-top: 1px solid rgba(255,255,255,0.05);
+padding-top: 8px;
+}
+
+.btn-history-action {
+background-color: rgba(255,255,255,0.05);
+border: 1px solid #475569;
+color: var(--text-color);
+padding: 6px 2px;
+border-radius: 4px;
+font-size: 0.75rem;
+font-weight: bold;
+cursor: pointer;
+transition: background 0.2s;
+}
+.btn-history-action:hover {
+background-color: rgba(255,255,255,0.15);
+}
+
+/* IN-APP POPUP (MODAL) */
+.custom-modal {
+display: none;
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background-color: rgba(0, 0, 0, 0.85);
+z-index: 9999;
+justify-content: center;
+align-items: center;
+padding: 20px;
+box-sizing: border-box;
+}
+.modal-content {
+background-color: var(--card-color);
+border: 2px solid #475569;
+border-radius: 12px;
+padding: 22px;
+max-width: 400px;
+width: 100%;
+text-align: center;
+box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.modal-text {
+font-size: 1.1rem;
+margin-bottom: 22px;
+line-height: 1.5;
+color: var(--text-color);
+}
+.modal-buttons {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+}
+.btn-modal {
+padding: 12px;
+border: none;
+border-radius: 6px;
+font-weight: bold;
+font-size: 1rem;
+cursor: pointer;
+}
+.btn-modal-confirm { background-color: var(--success); color: white; }
+.btn-modal-cancel { background-color: #475569; color: white; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>⏱️ Arbeidstijden Tracker</h1>
+<div class="version">Versie 3.5-G</div>
+
+<div class="discipline-selector">
+<button class="btn-discipline active" data-type="bus" onclick="switchDiscipline('bus')">🚌 Bus</button>
+<button class="btn-discipline" data-type="cbr" onclick="switchDiscipline('cbr')">💼 CBR</button>
+<button class="btn-discipline" data-type="vracht" onclick="switchDiscipline('vracht')">🚛 Vracht</button>
+</div>
+
+<div class="card">
+<label for="datum">Selecteer Datum</label>
+<input type="date" id="datum">
+
+<div id="paneel-bus" class="invoer-paneel active">
+<label for="dienstnummer">Dienstnummer (EBS)</label>
+<input type="text" id="dienstnummer" placeholder="Bijv. 4717">
+<button class="btn-action" onclick="laadBusDienst()">🚌 Dienst Inladen</button>
+</div>
+
+<div id="paneel-cbr" class="invoer-paneel">
+<button class="btn-action" style="background-color: var(--accent-cbr);" onclick="laadCbrStandaard()">💼 Standaard CBR-dag Inladen</button>
+</div>
+
+<div id="paneel-vracht" class="invoer-paneel">
+<div class="grid-2">
+<div>
+<label>Start Rijtijd</label>
+<input type="time" id="vracht-rij-start" value="07:00">
+</div>
+<div>
+<label>Eind Rijtijd</label>
+<input type="time" id="vracht-rij-eind" value="15:30">
+</div>
+</div>
+<button class="btn-action" style="background-color: var(--accent-vracht);" onclick="voegVrachtUrenToe()">🚛 Vrachturen Opslaan</button>
+</div>
+</div>
+
+<div class="card">
+<label>Dagsamenvatting Geselecteerde Dag</label>
+<div class="grid-2">
+<div class="stat-box">Aanwezigheid<div class="stat-val" id="lbl-diensturen">00:00</div></div>
+<div class="stat-box">Totale Pauze<div class="stat-val" id="lbl-pauze">00:00</div></div>
+</div>
+<div class="grid-2">
+<div class="stat-box">Totale Rijtijd<div class="stat-val text-yellow" id="lbl-rijtijd">00:00</div></div>
+<div class="stat-box">Totale Arbeid (ex. Rij)<div class="stat-val text-yellow" id="lbl-arbeid">00:00</div></div>
+</div>
+
+<label style="margin-top: 15px;">Wettelijke Indicatoren & Controle</label>
+<div class="grid-2">
+<div class="stat-box">Gerealiseerde Nachtrust<div class="stat-val" id="lbl-nachtrust">--:--</div></div>
+<div class="stat-box">Gedetecteerde Nachturen<div class="stat-val" id="lbl-nachturen">0:00</div></div>
+</div>
+
+<div id="wettelijke-melding" class="alert-box">
+Systeem operationeel. Voer gegevens in om de wetgeving te toetsen.
+</div>
+</div>
+
+<div class="history-title">📅 Gegevens Historie</div>
+<div id="historie-lijst"></div>
+</div>
+
+<div id="customAlertModal" class="custom-modal">
+<div class="modal-content">
+<div id="customModalText" class="modal-text">Weet je het zeker?</div>
+<div class="modal-buttons">
+<button class="btn-modal btn-modal-confirm" id="modalConfirmBtn">Ja, opslaan</button>
+<button class="btn-modal btn-modal-cancel" onclick="closeCustomModal()">Annuleren</button>
+</div>
+</div>
+</div>
+
+<script>
+const CURRENT_VERSION = "v3.5-G";
+
+const dienstenDatabase = {
+"4717": { start: "08:12", eind: "15:39", rijtijd: 322, pauze: 82 },
+"4701": { start: "07:31", eind: "16:16", rijtijd: 360, pauze: 65 },
+"4402": { start: "04:15", eind: "13:00", rijtijd: 320, pauze: 45 }
+};
+
+let logboekData = {};
+let activeCallback = null;
+
+// Zet datum direct op vandaag bij openen
+document.getElementById('datum').valueAsDate = new Date();
+
+function showCustomModal(text, callback) {
+document.getElementById('customModalText').innerText = text;
+document.getElementById('customAlertModal').style.display = 'flex';
+activeCallback = callback;
+}
+
+function closeCustomModal() {
+document.getElementById('customAlertModal').style.display = 'none';
+activeCallback = null;
+}
+
+document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+if (activeCallback) activeCallback();
+closeCustomModal();
+});
+
+function switchDiscipline(type) {
+document.querySelectorAll('.btn-discipline').forEach(btn => btn.classList.remove('active'));
+const activeBtn = document.querySelector(.btn-discipline[data-type="${type}"]`);
+if(activeBtn) activeBtn.classList.add('active');
+
+document.querySelectorAll('.invoer-paneel').forEach(p => p.classList.remove('active'));
+const activePaneel = document.getElementById(paneel-${type}`);
+if(activePaneel) activePaneel.classList.add('active');
+}
+
+function berekenMinutenTussenTijden(start, eind) {
+if(!start || !eind) return 0;
+const [hStart, mStart] = start.split(':').map(Number);
+const [hEind, mEind] = eind.split(':').map(Number);
+return (hEind * 60 + mEind) - (hStart * 60 + mStart);
+}
+
+function berekenNachtMinuten(start, eind) {
+if(!start || !eind) return 0;
+const [hStart, mStart] = start.split(':').map(Number);
+const [hEind, mEind] = eind.split(':').map(Number);
+let startMinuten = hStart * 60 + mStart;
+let eindMinuten = hEind * 60 + mEind;
+let overlapStart = Math.max(startMinuten, 0);
+let overlapEind = Math.min(eindMinuten, 360);
+return (overlapStart < overlapEind) ? (overlapEind - overlapStart) : 0;
+}
+
+function laadBusDienst() {
+const nr = document.getElementById('dienstnummer').value.trim();
+const datum = document.getElementById('datum').value;
+if(!nr) { alert("Voer een dienstnummer in."); return; }
+
+if (dienstenDatabase[nr]) {
+showCustomModal("Weet je zeker dat je Busdienst " + nr + " wilt toevoegen voor " + datum + "?", function() {
+const dbDienst = dienstenDatabase[nr];
+const totaleAanwezigheid = berekenMinutenTussenTijden(dbDienst.start, dbDienst.eind);
+const berekendeArbeid = totaleAanwezigheid - dbDienst.rijtijd - dbDienst.pauze;
+
+slaDagOp(datum, 'bus', dbDienst.rijtijd, berekendeArbeid, dbDienst.pauze, dbDienst.start, dbDienst.eind, "Dienst " + nr);
+updateDashboard(datum);
+renderHistorie();
+});
+} else {
+alert("Dienstnummer niet gevonden.");
+}
+}
+
+function laadCbrStandaard() {
+const datum = document.getElementById('datum').value;
+showCustomModal("Weet je zeker dat je een standaard CBR-dag wilt invoeren voor " + datum + "?", function() {
+slaDagOp(datum, 'cbr', 0, 480, 45, "08:00", "16:45", "CBR Examinator");
+updateDashboard(datum);
+renderHistorie();
+});
+}
+
+function voegVrachtUrenToe() {
+const datum = document.getElementById('datum').value;
+const start = document.getElementById('vracht-rij-start').value;
+const eind = document.getElementById('vracht-rij-eind').value;
+if(!start || !eind) { alert("Vul start- en eindtijd in."); return; }
+
+showCustomModal("Weet je zeker dat je deze Vrachturen (" + start + " tot " + eind + ") wilt opslaan voor " + datum + "?", function() {
+const totaalMinuten = berekenMinutenTussenTijden(start, eind);
+const berekendeRijtijd = totaalMinuten - 45 - 15;
+
+slaDagOp(datum, 'vracht', berekendeRijtijd, 15, 45, start, eind, "Vracht Rit");
+updateDashboard(datum);
+renderHistorie();
+});
+}
+
+function slaDagOp(datum, discipline, rijtijd, arbeid, pauze, start, eind, label) {
+if (!logboekData[datum]) {
+logboekData[datum] = {
+bus: {}, cbr: {}, vracht: {},
+start: start, eind: eind, label: label,
+version: CURRENT_VERSION
+};
+} else {
+if (discipline === 'bus') { logboekData[datum].cbr = {}; logboekData[datum].vracht = {}; }
+if (discipline === 'cbr') { logboekData[datum].bus = {}; logboekData[datum].vracht = {}; }
+if (discipline === 'vracht') { logboekData[datum].bus = {}; logboekData[datum].cbr = {}; }
+}
+
+logboekData[datum][discipline] = { rijtijd, arbeid, pauze };
+logboekData[datum].label = label;
+logboekData[datum].start = start;
+logboekData[datum].eind = eind;
+logboekData[datum].version = CURRENT_VERSION;
+}
+
+function verwijderDag(datum) {
+showCustomModal("Weet je zeker dat je de gegevens van " + datum + " volledig wilt wissen?", function() {
+delete logboekData[datum];
+renderHistorie();
+document.getElementById('lbl-diensturen').innerText = "00:00";
+document.getElementById('lbl-rijtijd').innerText = "00:00";
+document.getElementById('lbl-arbeid').innerText = "00:00";
+document.getElementById('lbl-pauze').innerText = "00:00";
+document.getElementById('lbl-nachturen').innerText = "0:00";
+document.getElementById('lbl-nachtrust').innerText = "--:--";
+});
+}
+
+function activeerAanpassen(datum) {
+document.getElementById('datum').value = datum;
+updateDashboard(datum);
+}
+
+function toevoegenAanDashboard(datum) {
+updateDashboard(datum);
+}
+
+function updateDashboard(datum) {
+const dag = logboekData[datum];
+if (!dag) return;
+
+let totaleRijtijd = (dag.bus.rijtijd || 0) + (dag.vracht.rijtijd || 0);
+let totaleArbeid = (dag.bus.arbeid || 0) + (dag.cbr.arbeid || 0) + (dag.vracht.arbeid || 0);
+let totalePauze = (dag.bus.pauze || 0) + (dag.cbr.pauze || 0) + (dag.vracht.pauze || 0);
+let nachtMinuten = berekenNachtMinuten(dag.start, dag.eind);
+let totaleAanwezigheid = berekenMinutenTussenTijden(dag.start, dag.eind);
+
+document.getElementById('lbl-diensturen').innerText = formatMinuten(totaleAanwezigheid);
+document.getElementById('lbl-rijtijd').innerText = formatMinuten(totaleRijtijd);
+document.getElementById('lbl-arbeid').innerText = formatMinuten(totaleArbeid);
+document.getElementById('lbl-pauze').innerText = formatMinuten(totalePauze);
+document.getElementById('lbl-nachturen').innerText = formatMinuten(nachtMinuten);
+
+let gisterDate = new Date(datum);
+gisterDate.setDate(gisterDate.getDate() - 1);
+let gisterStr = gisterDate.toISOString().split('T')[0];
+
+const rustVeld = document.getElementById('lbl-nachtrust');
+if (logboekData[gisterStr]) {
+let rustMinuten = (berekenMinutenTussenTijden(logboekData[gisterStr].eind, "24:00") || 0) + berekenMinutenTussenTijden("00:00", dag.start);
+rustVeld.innerText = formatMinuten(rustMinuten);
+if (rustMinuten < 660) {
+rustVeld.className = "stat-val text-red";
+document.getElementById('wettelijke-melding').innerText = "⚠️ Let op: Dagelijkse nachtrust is korter dan 11 uur!";
+document.getElementById('wettelijke-melding').style.borderColor = "var(--danger)";
+} else {
+rustVeld.className = "stat-val text-green";
+document.getElementById('wettelijke-melding').innerText = "✅ Geregistreerde tijden voldoen aan de wetgeving.";
+document.getElementById('wettelijke-melding').style.borderColor = "var(--success)";
+}
+} else {
+rustVeld.innerText = "Eerste invoer";
+rustVeld.className = "stat-val";
+document.getElementById('wettelijke-melding').innerText = "ℹ️ Geen gegevens van gister bekend.";
+}
+}
+
+function formatMinuten(minuten) {
+const uren = Math.floor(minuten / 60);
+const mins = minuten % 60;
+return ${uren.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')};
+}
+
+function renderHistorie() {
+const lijst = document.getElementById('historie-lijst');
+lijst.innerHTML = '';
+const gesorteerdeDatums = Object.keys(logboekData).sort().reverse();
+
+if(gesorteerdeDatums.length === 0) {
+lijst.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px;">Nog geen geschiedenis.</div>';
+return;
+}
+
+gesorteerdeDatums.forEach(datum => {
+const dag = logboekData[datum];
+let totaleRijtijd = (dag.bus.rijtijd || 0) + (dag.vracht.rijtijd || 0);
+let totaleArbeid = (dag.bus.arbeid || 0) + (dag.cbr.arbeid || 0) + (dag.vracht.arbeid || 0);
+let totalePauze = (dag.bus.pauze || 0) + (dag.cbr.pauze || 0) + (dag.vracht.pauze || 0);
+let totaleAanwezigheid = berekenMinutenTussenTijden(dag.start, dag.eind);
+
+let disciplineTag = 'bus';
+if(dag.cbr.arbeid) disciplineTag = 'cbr';
+if(dag.vracht.rijtijd) disciplineTag = 'vracht';
+
+const card = document.createElement('div');
+card.className = 'history-card';
+card.innerHTML = &lt;div class="history-header"&gt; &lt;div class="history-date"&gt;📅 ${datum}</div>
+<div class="tag-container">
+<span class="tag tag-${disciplineTag}"&gt;${disciplineTag.toUpperCase()}</span>
+<span class="tag tag-version">${dag.version || CURRENT_VERSION}&lt;/span&gt; &lt;/div&gt; &lt;/div&gt; &lt;div class="history-meta"&gt;📍 ${dag.label || 'Geen Label'} (${dag.start} - ${dag.eind})</div>
+<div class="grid-4">
+<div class="mini-stat">Rijtijd<div style="color:var(--accent-bus)">${formatMinuten(totaleRijtijd)}&lt;/div&gt;&lt;/div&gt; &lt;div class="mini-stat"&gt;Arbeid&lt;div&gt;${formatMinuten(totaleArbeid)}</div></div>
+<div class="mini-stat">Pauze<div>${formatMinuten(totalePauze)}&lt;/div&gt;&lt;/div&gt; &lt;div class="mini-stat" style="background-color:rgba(34, 197, 94, 0.1)"&gt;Dagtotaal&lt;div style="color:var(--success)"&gt;${formatMinuten(totaleAanwezigheid)}</div></div>
+</div>
+<div class="history-actions">
+<button class="btn-history-action" style="color:#06b6d4;" onclick="toevoegenAanDashboard('${datum}')"&gt;➕ Toevoegen&lt;/button&gt; &lt;button class="btn-history-action" onclick="activeerAanpassen('${datum}')">✏️ Aanpassen</button>
+<button class="btn-history-action" style="color:var(--danger);" onclick="verwijderDag('${datum}')"&gt;🗑️ Wissen&lt;/button&gt; &lt;/div&gt;;
+lijst.appendChild(card);
+});
+}
+
+// Start direct de lege geschiedenis-lijst op zonder crashende voor-invuldata
+renderHistorie();
+</script>
+</body>
+</html>
