@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⏱️ Arbeidstijden Tracker v2.8-G</title>
+<title>⏱️ Arbeidstijden Tracker v2.9-G</title>
 <style>
 :root {
 --bg-color: #121824;
@@ -209,7 +209,6 @@ font-weight: bold;
 .tag-cbr { background-color: rgba(59, 130, 246, 0.2); color: var(--accent-cbr); }
 .tag-vracht { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-vracht); }
 
-/* Versie-tag in de historie */
 .tag-version {
 background-color: rgba(167, 139, 250, 0.15);
 color: var(--version-color);
@@ -242,28 +241,33 @@ font-size: 0.75rem;
 
 <div class="container">
 <h1>⏱️ Arbeidstijden Tracker</h1>
-<div class="version">Versie 2.8-G</div>
+<div class="version">Versie 2.9-G</div>
 
+<!-- STAP 1: Discipline Knoppen -->
 <div class="discipline-selector">
 <button class="btn-discipline active" data-type="bus" onclick="switchDiscipline('bus')">🚌 Bus</button>
 <button class="btn-discipline" data-type="cbr" onclick="switchDiscipline('cbr')">💼 CBR</button>
 <button class="btn-discipline" data-type="vracht" onclick="switchDiscipline('vracht')">自由 Vracht</button>
 </div>
 
+<!-- STAP 2: Datum & Invoer -->
 <div class="card">
 <label for="datum">Selecteer Datum</label>
 <input type="date" id="datum">
 
+<!-- BUS PANEEL -->
 <div id="paneel-bus" class="invoer-paneel active">
 <label for="dienstnummer">Dienstnummer (EBS)</label>
 <input type="text" id="dienstnummer" placeholder="Bijv. 4717">
 <button class="btn-action" onclick="laadBusDienst()">🚌 Dienst Inladen</button>
 </div>
 
+<!-- CBR PANEEL -->
 <div id="paneel-cbr" class="invoer-paneel">
 <button class="btn-action" style="background-color: var(--accent-cbr);" onclick="laadCbrStandaard()">💼 Standaard CBR-dag Inladen</button>
 </div>
 
+<!-- VRACHTAUTO PANEEL -->
 <div id="paneel-vracht" class="invoer-paneel">
 <div class="grid-2">
 <div>
@@ -279,6 +283,7 @@ font-size: 0.75rem;
 </div>
 </div>
 
+<!-- STAP 3: Dashboard -->
 <div class="card">
 <label>Dagsamenvatting Geselecteerde Dag</label>
 <div class="grid-2">
@@ -301,12 +306,13 @@ Systeem operationeel. Voer gegevens in om de wetgeving te toetsen.
 </div>
 </div>
 
+<!-- HISTORIE OVERZICHT -->
 <div class="history-title">📅 Gegevens Historie</div>
 <div id="historie-lijst"></div>
 </div>
 
 <script>
-const CURRENT_VERSION = "v2.8-G";
+const CURRENT_VERSION = "v2.9-G";
 
 const dienstenDatabase = {
 "4717": { start: "08:12", eind: "16:30", rijtijd: 345, arbeid: 45, pauze: 45 },
@@ -340,10 +346,13 @@ function laadBusDienst() {
 const nr = document.getElementById('dienstnummer').value.trim();
 const datum = document.getElementById('datum').value;
 if (dienstenDatabase[nr]) {
+// BEVESTIGINGS POP-UP
+if (confirm(Weet je zeker dat je Busdienst ${nr} wilt toevoegen/overschrijven voor ${datum}?)) {
 const data = dienstenDatabase[nr];
 slaDagOp(datum, 'bus', data.rijtijd, data.arbeid, data.pauze, data.start, data.eind, Dienst ${nr}`);
 updateDashboard(datum);
 renderHistorie();
+}
 } else {
 alert("Dienstnummer niet gevonden.");
 }
@@ -351,9 +360,12 @@ alert("Dienstnummer niet gevonden.");
 
 function laadCbrStandaard() {
 const datum = document.getElementById('datum').value;
+// BEVESTIGINGS POP-UP
+if (confirm(Weet je zeker dat je een standaard CBR-dag wilt invoeren/overschrijven voor${datum}?`)) {
 slaDagOp(datum, 'cbr', 0, 480, 45, "08:00", "16:45", "CBR Examinator");
 updateDashboard(datum);
 renderHistorie();
+}
 }
 
 function voegVrachtUrenToe() {
@@ -362,6 +374,8 @@ const start = document.getElementById('vracht-rij-start').value;
 const eind = document.getElementById('vracht-rij-eind').value;
 if(!start || !eind) return;
 
+// BEVESTIGINGS POP-UP
+if (confirm(Weet je zeker dat je deze Vrachturen (${start} tot ${eind}) wilt opslaan/overschrijven voor ${datum}?`)) {
 const [hStart, mStart] = start.split(':').map(Number);
 const [hEind, mEind] = eind.split(':').map(Number);
 const totaalMinuten = (hEind * 60 + mEind) - (hStart * 60 + mStart);
@@ -370,19 +384,28 @@ slaDagOp(datum, 'vracht', totaalMinuten, 30, 45, start, eind, "Vracht Rit");
 updateDashboard(datum);
 renderHistorie();
 }
+}
 
 function slaDagOp(datum, discipline, rijtijd, arbeid, pauze, start, eind, label) {
+// Maak een schone lei of behoud bestaande disciplines van die dag
 if (!logboekData[datum]) {
 logboekData[datum] = {
 bus: {}, cbr: {}, vracht: {},
 start: start, eind: eind, label: label,
-version: CURRENT_VERSION // Sla de versie op bij de dag
+version: CURRENT_VERSION
 };
+} else {
+// Als de dag al bestond, resetten we de specifieke disciplines om overschrijven soepel te maken
+if (discipline === 'bus') logboekData[datum].cbr = {}; logboekData[datum].vracht = {};
+if (discipline === 'cbr') logboekData[datum].bus = {}; logboekData[datum].vracht = {};
+if (discipline === 'vracht') logboekData[datum].bus = {}; logboekData[datum].cbr = {};
 }
+
 logboekData[datum][discipline] = { rijtijd, arbeid, pauze };
 logboekData[datum].label = label;
-if(start < logboekData[datum].start) logboekData[datum].start = start;
-if(eind > logboekData[datum].eind) logboekData[datum].eind = eind;
+logboekData[datum].start = start;
+logboekData[datum].eind = eind;
+logboekData[datum].version = CURRENT_VERSION;
 }
 
 function updateDashboard(datum) {
